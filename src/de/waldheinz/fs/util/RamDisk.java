@@ -16,9 +16,16 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/*
+ * Modified by Carlos Gonzales (CNexus) on 6/5/2015
+ * 
+ * 
+ * Changes: Allow RamDisk to be instantiated from byte array
+ * 
+ */
+
 package de.waldheinz.fs.util;
 
-import de.waldheinz.fs.*;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,6 +34,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.zip.GZIPInputStream;
+
+import de.waldheinz.fs.BlockDevice;
 
 /**
  * A {@link BlockDevice} that lives entirely in heap memory. This is basically
@@ -94,6 +103,11 @@ public final class RamDisk implements BlockDevice {
         } finally {
             is.close();
         }
+    }
+    
+    public static RamDisk read(byte[] bytes){
+    	final ByteBuffer bb = ByteBuffer.wrap(bytes);
+    	return new RamDisk(bb, DEFAULT_SECTOR_SIZE);
     }
     
     private RamDisk(ByteBuffer buffer, int sectorSize) {
