@@ -41,7 +41,7 @@ public class FatCore {
 		try{
 			addAll(root, 0, outputDir);
 		}catch(IOException e){
-			e.printStackTrace();
+			throw new RuntimeException("Error while reading files from image");
 		}
 	}
 
