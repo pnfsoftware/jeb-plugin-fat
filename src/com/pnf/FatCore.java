@@ -86,10 +86,6 @@ public class FatCore {
 	public String getFatType(){
 		return type;
 	}
-	
-	public String toString(){
-		return type + " = " + files.toString();
-	}
 }
 
 class FileEntry {
@@ -97,6 +93,7 @@ class FileEntry {
 	private File file;
 
 	public FileEntry(File file, ByteBuffer buff){
+		this.file = file;
 		this.buff = buff;
 	}
 
