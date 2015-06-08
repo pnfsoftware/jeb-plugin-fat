@@ -107,4 +107,8 @@ class FileEntry {
 	public File getFile(){
 		return file;
 	}
+
+	public String toString(){
+		return file.toString() + " buff is " + (buff == null ? "NULL" : "NOT null");
+	}
 }
