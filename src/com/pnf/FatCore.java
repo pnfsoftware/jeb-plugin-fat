@@ -83,7 +83,7 @@ public class FatCore {
 				for (int i = 0; i < tabs; i++)
 					System.out.print(' ');
 				if ((!e.getName().equals(".")) && (!e.getName().equals(".."))){
-					for (int idx = 0; idx < tabs; idx++)
+					for (int i = 0; i < tabs; i++)
 						System.out.print("  ");
 					System.out.println("[" + e + "]");
 					addAll(e.getDirectory(), tabs + 1, new File(parentDir, e.getName()));
