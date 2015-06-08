@@ -22,13 +22,7 @@ public class FatPlugin extends AbstractUnitIdentifier{
 	}
 
 	public boolean identify(byte[] stream, IUnit unit) {
-		boolean check = checkBytes(stream, FAT_BOOT_SIG_OFFSET, FAT_BOOT_SIG); // First check for FAT boot sector signature
-
-		if(check){
-			LOG.info("%s", "Successfully detected FAT file");
-		}
-
-		return check;
+		return checkBytes(stream, FAT_BOOT_SIG_OFFSET, FAT_BOOT_SIG); // First check for FAT boot sector signature
 	}
 
 	public void initialize(IPropertyDefinitionManager parent, IPropertyManager pm) {
