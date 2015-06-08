@@ -2,7 +2,7 @@ package com.pnf;
 
 import java.util.List;
 
-import com.pnf.FatCore.FileOutputEntry;
+import com.pnf.FatProcessor.FileOutputEntry;
 import com.pnfsoftware.jeb.core.properties.IPropertyDefinitionManager;
 import com.pnfsoftware.jeb.core.units.AbstractBinaryUnit;
 import com.pnfsoftware.jeb.core.units.IUnit;
@@ -16,7 +16,7 @@ public class FatUnit extends AbstractBinaryUnit {
 	}
 	
 	public boolean process(){
-		FatCore core = new FatCore(getBytes());
+		FatProcessor core = new FatProcessor(getBytes());
 		List<FileOutputEntry> files = core.getStoredFiles();
 		
 		for(FileOutputEntry f: files){

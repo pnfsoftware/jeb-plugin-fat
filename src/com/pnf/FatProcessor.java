@@ -13,7 +13,7 @@ import de.waldheinz.fs.FsFile;
 import de.waldheinz.fs.fat.FatFileSystem;
 import de.waldheinz.fs.util.RamDisk;
 
-public class FatCore {
+public class FatProcessor {
 	private static boolean VERBOSE = false;
 
 	private File outputDir;
@@ -28,7 +28,7 @@ public class FatCore {
 	 * @param stream byte array representation of a FAT image
 	 * @param rootDirectory {@link File} object to use as the base directory when creating internal {@link File} entries for the image contents
 	 */
-	public FatCore(byte[] stream){
+	public FatProcessor(byte[] stream){
 		try {
 			RamDisk rd = RamDisk.read(stream);
 			image = FatFileSystem.read(rd, true);
