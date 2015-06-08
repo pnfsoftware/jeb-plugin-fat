@@ -1,6 +1,7 @@
 package com.pnf;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -42,6 +43,38 @@ public class FatCore {
 		}catch(IOException e){
 			e.printStackTrace();
 		}
+	}
+
+	public boolean dumpFiles(){
+		FileOutputStream stream = null;
+
+		for(FileOutputEntry e: files){
+			File file = e.getFile();
+			System.out.println("Writing: " + file.getAbsolutePath());
+			try {
+				if(file != null){
+					if(file.exists()){
+						file.delete();
+					}else if(file.getParentFile().isDirectory()){
+						file.getParentFile().mkdirs();
+					}
+					stream = new FileOutputStream(file);
+					stream.write(e.getBuffer().array());
+				}
+			} catch (IOException e1) {
+				return false;
+			} finally{
+				if(stream != null){
+					try {
+						stream.close();
+					} catch (IOException e1) {
+						return false;
+					}
+				}
+			}
+		}
+
+		return true;
 	}
 
 	private void addAll(FsDirectory fatDir, int tabs, File parentDir) throws IOException {
