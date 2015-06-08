@@ -18,7 +18,7 @@ public class FatCore {
 	private File tempDir;
 	private FatFileSystem image;
 	private String type;
-	private List<FileEntry> files;
+	private List<FileOutputEntry> files;
 
 	public FatCore(byte[] stream){
 		try {
@@ -65,13 +65,13 @@ public class FatCore {
 
 				ByteBuffer buff = ByteBuffer.allocate((int)fatFile.getLength());
 				fatFile.read(0, buff);
-				FileEntry entry = new FileEntry(curFile, buff);
+				FileOutputEntry entry = new FileOutputEntry(curFile, buff);
 				files.add(entry);
 			}
 		}
 	}
 
-	public List<FileEntry> getStoredFiles(){
+	public List<FileOutputEntry> getStoredFiles(){
 		return files;
 	}
 
@@ -92,11 +92,11 @@ public class FatCore {
 	}
 }
 
-class FileEntry {
+class FileOutputEntry {
 	private ByteBuffer buff;
 	private File file;
 
-	public FileEntry(File file, ByteBuffer buff){
+	public FileOutputEntry(File file, ByteBuffer buff){
 		this.file = file;
 		this.buff = buff;
 	}
