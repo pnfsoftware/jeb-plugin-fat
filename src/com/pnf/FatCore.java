@@ -16,6 +16,8 @@ import de.waldheinz.fs.fat.FatFileSystem;
 import de.waldheinz.fs.util.RamDisk;
 
 public class FatCore {
+	private static boolean VERBOSE = false;
+
 	private File tempDir;
 	private FatFileSystem image;
 	private String type;
@@ -50,7 +52,8 @@ public class FatCore {
 
 		for(FileOutputEntry e: files){
 			File file = e.getFile();
-			System.out.println("Writing: " + file.getAbsolutePath());
+			if(VERBOSE)
+				System.out.println("Writing: " + file.getAbsolutePath());
 			try {
 				if(file != null){
 					if(file.exists()){
@@ -80,18 +83,23 @@ public class FatCore {
 	private void addAll(FsDirectory fatDir, int tabs, File parentDir) throws IOException {
 		for(FsDirectoryEntry e: fatDir){
 			if (e.isDirectory()) {
-				for (int i = 0; i < tabs; i++)
-					System.out.print(' ');
-				if ((!e.getName().equals(".")) && (!e.getName().equals(".."))){
+				if(VERBOSE)
 					for (int i = 0; i < tabs; i++)
-						System.out.print("  ");
-					System.out.println("[" + e + "]");
+						System.out.print(' ');
+				if ((!e.getName().equals(".")) && (!e.getName().equals(".."))){
+					if(VERBOSE){
+						for (int i = 0; i < tabs; i++)
+							System.out.print("  ");
+						System.out.println("[" + e + "]");
+					}
 					addAll(e.getDirectory(), tabs + 1, new File(parentDir, e.getName()));
 				}
 			} else {
-				for (int i = 0; i < tabs; i++)
-					System.out.print("  ");
-				System.out.println(e);
+				if(VERBOSE){
+					for (int i = 0; i < tabs; i++)
+						System.out.print("  ");
+					System.out.println(e);
+				}
 
 				File curFile = new File(parentDir, e.getName());
 				FsFile fatFile = e.getFile();
@@ -102,6 +110,10 @@ public class FatCore {
 				files.add(entry);
 			}
 		}
+	}
+	
+	public static void setVerbose(boolean verbose){
+		VERBOSE = verbose;
 	}
 
 	public List<FileOutputEntry> getStoredFiles(){
