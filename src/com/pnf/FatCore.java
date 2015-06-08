@@ -7,8 +7,6 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.pnfsoftware.jeb.util.IO;
-
 import de.waldheinz.fs.FsDirectory;
 import de.waldheinz.fs.FsDirectoryEntry;
 import de.waldheinz.fs.FsFile;
@@ -18,14 +16,14 @@ import de.waldheinz.fs.util.RamDisk;
 public class FatCore {
 	private static boolean VERBOSE = false;
 
-	private File tempDir;
+	private File outputDir;
 	private FatFileSystem image;
 	private String type;
 	private List<FileOutputEntry> files;
 
-	public FatCore(byte[] stream){
+	public FatCore(byte[] stream, File outputDirectory){
 		try {
-			tempDir = IO.createTempFolder("fat_data");
+			outputDir = outputDirectory;
 
 			RamDisk rd = RamDisk.read(stream);
 			image = FatFileSystem.read(rd, true);
@@ -41,7 +39,7 @@ public class FatCore {
 		files = new ArrayList<>();
 
 		try{
-			addAll(root, 0, tempDir);
+			addAll(root, 0, outputDir);
 		}catch(IOException e){
 			e.printStackTrace();
 		}
@@ -125,7 +123,7 @@ public class FatCore {
 	}
 
 	public File getOutputDirectory(){
-		return tempDir;
+		return outputDir;
 	}
 
 	public String getFatType(){
