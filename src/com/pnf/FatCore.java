@@ -86,6 +86,10 @@ public class FatCore {
 	public String getFatType(){
 		return type;
 	}
+
+	public String toString(){
+		return type + " filesystem: " + files.toString();
+	}
 }
 
 class FileEntry {
