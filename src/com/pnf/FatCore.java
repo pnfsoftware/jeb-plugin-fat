@@ -100,8 +100,8 @@ class FileEntry {
 		this.buff = buff;
 	}
 
-	public byte[] getBytes(){
-		return buff.array();
+	public ByteBuffer getBuffer(){
+		return buff;
 	}
 
 	public File getFile(){
