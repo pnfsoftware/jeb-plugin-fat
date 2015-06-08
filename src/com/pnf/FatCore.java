@@ -21,10 +21,15 @@ public class FatCore {
 	private String type;
 	private List<FileOutputEntry> files;
 
-	public FatCore(byte[] stream, File outputDirectory){
+	/**
+	 * Creates a new {@link FatCore} object from the given byte stream. All internal {@link File} objects will be created under the given {@link rootDirectory}.
+	 * 
+	 * <p><i>Note: Calling this constructor <b>will not</b> extract any files from the image data. For extracting the files, see {@link dumpFiles}.</i></p>
+	 * @param stream byte array representation of a FAT image
+	 * @param rootDirectory {@link File} object to use as the base directory when creating internal {@link File} entries for the image contents
+	 */
+	public FatCore(byte[] stream){
 		try {
-			outputDir = outputDirectory;
-
 			RamDisk rd = RamDisk.read(stream);
 			image = FatFileSystem.read(rd, true);
 		} catch (IOException e) {
@@ -39,27 +44,42 @@ public class FatCore {
 		files = new ArrayList<>();
 
 		try{
-			addAll(root, 0, outputDir);
+			addAll(root, 0, null);
 		}catch(IOException e){
-			throw new RuntimeException("Error while reading files from image");
+			throw new RuntimeException("Error while attempting to read image.");
 		}
 	}
+	
+	public boolean dumpFiles(File dest){
+		if(dest == null){
+			throw new IllegalArgumentException("Destination directory is null.");
+		}else if(!dest.exists()){
+			if(!dest.mkdirs()){
+				throw new RuntimeException("Failed to create output directory " + dest.getAbsolutePath() + ".");
+			}
+		}
+		
+		outputDir = dest;
+		return dumpFiles();
+	}
 
-	public boolean dumpFiles(){
+	private boolean dumpFiles(){	
 		FileOutputStream stream = null;
 
 		for(FileOutputEntry e: files){
 			File file = e.getFile();
+			File realFile = outputDir.toPath().resolve(file.getName()).toFile();
+			
 			if(VERBOSE)
-				System.out.println("Writing: " + file.getAbsolutePath());
+				System.out.println("Writing: " + realFile.getAbsolutePath());
 			try {
-				if(file != null){
-					if(file.exists()){
-						file.delete();
-					}else if(file.getParentFile().isDirectory()){
-						file.getParentFile().mkdirs();
+				if(realFile != null){
+					if(realFile.exists()){
+						realFile.delete();
+					}else if(realFile.getParentFile().isDirectory()){
+						realFile.getParentFile().mkdirs();
 					}
-					stream = new FileOutputStream(file);
+					stream = new FileOutputStream(realFile);
 					stream.write(e.getBuffer().array());
 				}
 			} catch (IOException e1) {
