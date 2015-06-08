@@ -88,10 +88,13 @@ public class FatCore {
 					realFile.getParentFile().mkdirs();
 				}
 				stream = new FileOutputStream(realFile);
+				
+				// Retrieve ByteBuffer data stored within entry and write to file
 				stream.write(e.getBuffer().array());
 			} catch (IOException e1) {
 				return false;
 			} finally{
+				// Close stream to avoid resource leaks
 				if(stream != null){
 					try {
 						stream.close();
@@ -102,6 +105,7 @@ public class FatCore {
 			}
 		}
 
+		// Return true if we made it here without issues
 		return true;
 	}
 
@@ -117,6 +121,8 @@ public class FatCore {
 							System.out.print("  ");
 						System.out.println("[" + e + "]");
 					}
+					
+					// Recurse and parse files within the current directory
 					addAll(e.getDirectory(), tabs + 1, new File(parentDir, e.getName()));
 				}
 			} else {
@@ -126,9 +132,11 @@ public class FatCore {
 					System.out.println(e);
 				}
 
+				// Create a new File from the given parent directory
 				File curFile = new File(parentDir, e.getName());
 				FsFile fatFile = e.getFile();
 
+				// Create ByteBuffer around contents of file. Todo: update so files with more than Integer.MAX_VALUE bytes are stored properly (possibly using a ByteBuffer array).
 				ByteBuffer buff = ByteBuffer.allocate((int)fatFile.getLength());
 				fatFile.read(0, buff);
 				FileOutputEntry entry = new FileOutputEntry(curFile, buff);
