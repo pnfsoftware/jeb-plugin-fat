@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import com.pnf.FatCore.FileOutputEntry;
 import com.pnfsoftware.jeb.core.properties.IPropertyDefinitionManager;
 import com.pnfsoftware.jeb.core.units.AbstractBinaryUnit;
 import com.pnfsoftware.jeb.core.units.IUnit;
@@ -25,7 +26,7 @@ public class FatUnit extends AbstractBinaryUnit {
 			throw new RuntimeException("Failed to create temporary directory in fat_plugin");
 		}
 		
-		FatCore core = new FatCore(getBytes(), tempDir);
+		FatCore core = new FatCore(getBytes());
 		List<FileOutputEntry> files = core.getStoredFiles();
 		
 		for(FileOutputEntry f: files){
