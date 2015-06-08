@@ -9,9 +9,10 @@ import com.pnfsoftware.jeb.core.units.IUnit;
 import com.pnfsoftware.jeb.core.units.IUnitProcessor;
 
 public class FatPlugin extends AbstractUnitIdentifier{
-	private static String ID = "fat_plugin";
+	private static final String ID = "fat_plugin";
 	private static final int[] FAT_BOOT_SIG = {(byte) 0x55, (byte) 0xAA};
-	private static final int FAT_BOOT_SIG_OFFSET = (byte) 0x200;
+	private static final int FAT_BOOT_SIG_OFFSET = 0x200 - FAT_BOOT_SIG.length;
+
 	
 	public FatPlugin() {
 		super(ID, 0);
@@ -19,22 +20,24 @@ public class FatPlugin extends AbstractUnitIdentifier{
 
 	public boolean identify(byte[] stream, IUnit unit) {
 		boolean check = checkBytes(stream, FAT_BOOT_SIG_OFFSET, FAT_BOOT_SIG); // First check for FAT boot sector signature
-		
+
 		if(check){
-			Utils.LOG.info("%s", "Identified FAT file.");
+			Utils.LOG.info("%s", "Successfully detected FAT file");
 		}
-		
+
 		return check;
 	}
-	
+
 	public void initialize(IPropertyDefinitionManager parent, IPropertyManager pm) {
-        super.initialize(parent, pm);
-        /** Add any necessary property definitions here **/
-    }
+		super.initialize(parent, pm);
+		/** Add any necessary property definitions here **/
+	}
 
 	@Override
 	public IUnit prepare(String name, byte[] data, IUnitProcessor processor, IUnit unit) {
-		return null;
+		IUnit fatUnit = new FatUnit(name, data, processor, unit, getPropertyDefinitionManager());
+		fatUnit.process();
+		return fatUnit;
 	}
 
 	@Override
