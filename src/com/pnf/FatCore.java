@@ -22,7 +22,7 @@ public class FatCore {
 	private List<FileOutputEntry> files;
 
 	/**
-	 * Creates a new {@link FatCore} object from the given byte stream. All internal {@link File} objects will be created under the given {@link rootDirectory}.
+	 * Creates a new {@code FatCore} object from the given byte stream. All internal {@link File} objects will be created under the given {@code rootDirectory}.
 	 * 
 	 * <p><i>Note: Calling this constructor <b>will not</b> extract any files from the image data. For extracting the files, see {@link dumpFiles}.</i></p>
 	 * @param stream byte array representation of a FAT image
@@ -49,7 +49,13 @@ public class FatCore {
 			throw new RuntimeException("Error while attempting to read image.");
 		}
 	}
-	
+
+	/**
+	 * Dumps the contents of this FAT filesystem image to the given directory.
+	 * @param dest Destination directory for this image's contents
+	 * @return {@code true} if the image contents were dumped successfully, {@code false} otherwise
+	 */
+
 	public boolean dumpFiles(File dest){
 		if(dest == null){
 			throw new IllegalArgumentException("Destination directory is null.");
@@ -58,7 +64,7 @@ public class FatCore {
 				throw new RuntimeException("Failed to create output directory " + dest.getAbsolutePath() + ".");
 			}
 		}
-		
+
 		outputDir = dest;
 		return dumpFiles();
 	}
@@ -67,21 +73,22 @@ public class FatCore {
 		FileOutputStream stream = null;
 
 		for(FileOutputEntry e: files){
+			// Retrieve file stored within FileOutputEntry object
 			File file = e.getFile();
+
+			// Create a new file using the given output directory to resolve paths
 			File realFile = outputDir.toPath().resolve(file.getName()).toFile();
-			
+
 			if(VERBOSE)
 				System.out.println("Writing: " + realFile.getAbsolutePath());
 			try {
-				if(realFile != null){
-					if(realFile.exists()){
-						realFile.delete();
-					}else if(realFile.getParentFile().isDirectory()){
-						realFile.getParentFile().mkdirs();
-					}
-					stream = new FileOutputStream(realFile);
-					stream.write(e.getBuffer().array());
+				if(realFile.exists()){
+					realFile.delete();
+				}else if(realFile.getParentFile().isDirectory()){
+					realFile.getParentFile().mkdirs();
 				}
+				stream = new FileOutputStream(realFile);
+				stream.write(e.getBuffer().array());
 			} catch (IOException e1) {
 				return false;
 			} finally{
@@ -129,50 +136,67 @@ public class FatCore {
 			}
 		}
 	}
-	
+
+	/**
+	 * Enable or disable verbose logging during {@code FatCore} image reading.
+	 * <p>Must be called before a {@code FatCore} object has been created.</p>
+	 * @param verbose true to enable verbose logging, false otherwise
+	 */
+
 	public static void setVerbose(boolean verbose){
 		VERBOSE = verbose;
 	}
 
+	/**
+	 * Returns a {@code List} representation of the {@link FileOutputEntry} objects created from this image.
+	 * <br>Note that all {@code File} objects stored within a {@link FileOutputEntry} are not created relative to any root directory.</p>
+	 * @return
+	 */
 	public List<FileOutputEntry> getStoredFiles(){
 		return files;
 	}
 
-	public FatFileSystem getFatSystem(){
-		return image;
-	}
-
-	public File getOutputDirectory(){
-		return outputDir;
-	}
+	/**
+	 * Retrieve a String representation of the filesystem type this image represents.
+	 * @return a {@code String} representation of this image's filesystem type
+	 */
 
 	public String getFatType(){
 		return type;
 	}
 
+	/**
+	 * Returns a {@code String} representation of this {@code FatCore} object.
+	 */
+
 	public String toString(){
 		return type + " filesystem: " + files.toString();
 	}
-}
 
-class FileOutputEntry {
-	private ByteBuffer buff;
-	private File file;
+	public class FileOutputEntry {
+		private ByteBuffer buff;
+		private File file;
 
-	public FileOutputEntry(File file, ByteBuffer buff){
-		this.file = file;
-		this.buff = buff;
-	}
+		/**
+		 * 
+		 * @param file
+		 * @param buff
+		 */
+		public FileOutputEntry(File file, ByteBuffer buff){
+			this.file = file;
+			this.buff = buff;
+		}
 
-	public ByteBuffer getBuffer(){
-		return buff;
-	}
+		public ByteBuffer getBuffer(){
+			return buff;
+		}
 
-	public File getFile(){
-		return file;
-	}
+		public File getFile(){
+			return file;
+		}
 
-	public String toString(){
-		return file.toString() + " buff is " + (buff == null ? "NULL" : "NOT null");
+		public String toString(){
+			return file.toString() + " buff is " + (buff == null ? "NULL" : "NOT null");
+		}
 	}
 }
