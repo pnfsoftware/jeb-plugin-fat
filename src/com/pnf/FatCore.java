@@ -8,11 +8,10 @@ import java.util.List;
 
 import com.pnfsoftware.jeb.util.IO;
 
+import de.waldheinz.fs.FsDirectory;
 import de.waldheinz.fs.FsDirectoryEntry;
-import de.waldheinz.fs.fat.FatFile;
+import de.waldheinz.fs.FsFile;
 import de.waldheinz.fs.fat.FatFileSystem;
-import de.waldheinz.fs.fat.FatLfnDirectory;
-import de.waldheinz.fs.fat.FatLfnDirectoryEntry;
 import de.waldheinz.fs.util.RamDisk;
 
 public class FatCore {
@@ -21,9 +20,10 @@ public class FatCore {
 	private String type;
 	private List<FileEntry> files;
 
-	public FatCore(byte[] stream, boolean readOnly){
+	public FatCore(byte[] stream){
 		try {
 			tempDir = IO.createTempFolder("fat_data");
+
 			RamDisk rd = RamDisk.read(stream);
 			image = FatFileSystem.read(rd, true);
 		} catch (IOException e) {
@@ -33,41 +33,40 @@ public class FatCore {
 		type = image.getFatType().toString();
 
 		/* Create list of files */
-		FatLfnDirectory root = image.getRoot();
+		FsDirectory root = image.getRoot();
 
 		files = new ArrayList<>();
 
-		addAll(tempDir, root);
-	}
-	
-	private void addAll(File root, FatLfnDirectory topDir){
-		for(FsDirectoryEntry e: topDir){
-			addToList(root, (FatLfnDirectoryEntry) e);
+		try{
+			addAll(root, 0, tempDir);
+		}catch(IOException e){
+			e.printStackTrace();
 		}
 	}
 
-	private void addToList(File root, FatLfnDirectoryEntry e){
-		FileEntry entry = null;
-		if(e.isFile()){
-			// Is a file
-			FatFile file = null;
-			File f = new File(e.getName());
-			try{
-				file = e.getFile();
-				ByteBuffer buff = ByteBuffer.wrap(new byte[(int)file.getLength()]);
-				entry = new FileEntry(f, buff);
+	private void addAll(FsDirectory fatDir, int tabs, File parentDir) throws IOException {
+		for(FsDirectoryEntry e: fatDir){
+			if (e.isDirectory()) {
+				for (int i = 0; i < tabs; i++)
+					System.out.print(' ');
+				if ((!e.getName().equals(".")) && (!e.getName().equals(".."))){
+					for (int idx = 0; idx < tabs; idx++)
+						System.out.print("  ");
+					System.out.println("[" + e + "]");
+					addAll(e.getDirectory(), tabs + 1, new File(parentDir, e.getName()));
+				}
+			} else {
+				for (int i = 0; i < tabs; i++)
+					System.out.print("  ");
+				System.out.println(e);
+
+				File curFile = new File(parentDir, e.getName());
+				FsFile fatFile = e.getFile();
+
+				ByteBuffer buff = ByteBuffer.allocate((int)fatFile.getLength());
+				fatFile.read(0, buff);
+				FileEntry entry = new FileEntry(curFile, buff);
 				files.add(entry);
-			}catch(IOException e1){
-				e1.printStackTrace();
-			}
-		}else{
-			// Is a directory, so recurse
-			File sub = new File(root, e.getName());
-			sub.mkdirs();
-			try {
-				addAll(sub, e.getDirectory());
-			} catch (IOException e1) {
-				e1.printStackTrace();
 			}
 		}
 	}
