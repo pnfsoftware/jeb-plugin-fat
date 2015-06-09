@@ -80,7 +80,7 @@ public class FatProcessor {
 			File realFile = outputDir.toPath().resolve(file.getName()).toFile();
 
 			if(VERBOSE) // Only log writing if in verbose mode
-				System.out.println("Writing: " + realFile.getAbsolutePath());
+				FatPlugin.LOG.info("%s", "Writing: " + realFile.getAbsolutePath());
 			try {
 				if(realFile.getParentFile().isDirectory()){
 					realFile.getParentFile().mkdirs();
@@ -113,14 +113,16 @@ public class FatProcessor {
 		for(FsDirectoryEntry e: fatDir){
 			// If it's a directory, recurse deeper
 			if (e.isDirectory()) {
+				StringBuffer buff = null;
 				if(VERBOSE) // Only log if verbose
+					buff = new StringBuffer();
 					for (int i = 0; i < tabs; i++)
-						System.out.print(' ');
+						buff.append(' ');
 				if ((!e.getName().equals(".")) && (!e.getName().equals(".."))){ // Avoid references to current and parent directory, if present
 					if(VERBOSE){ // Only log if verbose
 						for (int i = 0; i < tabs; i++)
-							System.out.print("  ");
-						System.out.println("[" + e + "]");
+							buff.append("  ");
+						FatPlugin.LOG.info("%s", buff.toString() + "[" + e.toString() + "]");
 					}
 
 					// Recurse and parse files within the current directory
@@ -128,9 +130,11 @@ public class FatProcessor {
 				}
 			} else {
 				if(VERBOSE){ // Only log if verbose
+					StringBuffer buff = new StringBuffer();
 					for (int i = 0; i < tabs; i++)
-						System.out.print("  ");
-					System.out.println(e);
+						buff.append("  ");
+					buff.append(e);
+					FatPlugin.LOG.info("%s", buff.toString());
 				}
 
 				// Create a new File from the given parent directory
