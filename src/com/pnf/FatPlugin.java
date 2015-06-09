@@ -42,7 +42,7 @@ public class FatPlugin extends AbstractUnitIdentifier{
 
 	@Override
 	public PluginInformation getPluginInformation() {
-		return new PluginInformation("FAT12 Plugin", "", "0.1", "PNF Software");
+		return new PluginInformation("FAT Plugin", "", "1.0", "PNF Software");
 	}
 
 	@Override
