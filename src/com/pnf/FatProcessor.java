@@ -22,28 +22,29 @@ public class FatProcessor {
 	private List<ImageFileEntry> files;
 
 	/**
-	 * Creates a new {@code FatCore} object from the given byte stream. All internal {@link File} objects will be created under the given {@code rootDirectory}.
+	 * Creates a new {@code FatCore} object from the given byte stream.
 	 * 
-	 * <p><i>Note: Calling this constructor <b>will not</b> extract any files from the image data. For extracting the files, see {@link dumpFiles}.</i></p>
+	 * <p><i>Note: Calling this constructor <b>will not</b> extract any files from the image bytes. For extracting the files, see {@link dumpFiles}.</i></p>
 	 * @param stream byte array representation of a FAT image
-	 * @param rootDirectory {@link File} object to use as the base directory when creating internal {@link File} entries for the image contents
 	 */
 	public FatProcessor(byte[] stream){
 		try {
-			RamDisk rd = RamDisk.read(stream);
-			image = FatFileSystem.read(rd, true);
+			RamDisk rd = RamDisk.read(stream); // Create in-memory represenation of disk image
+			image = FatFileSystem.read(rd, true); // Open as read-only to prevent accidental writes
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-		type = image.getFatType().toString();
+		type = image.getFatType().toString(); // Store type of FAT image
 
 		/* Create list of files */
 		FsDirectory root = image.getRoot();
 
+		// Create List to hold all the ImageFileEntry objects
 		files = new ArrayList<>();
 
 		try{
+			// Recursively add entries for each file inside the image
 			addAll(root, 0, null);
 		}catch(IOException e){
 			throw new RuntimeException("Error while attempting to read image.");
@@ -60,13 +61,13 @@ public class FatProcessor {
 		if(dest == null){
 			throw new IllegalArgumentException("Destination directory is null.");
 		}else if(!dest.exists()){
-			if(!dest.mkdirs()){
+			if(!dest.mkdirs()){ // Attempt to create directory if destination does not exists
 				throw new RuntimeException("Failed to create output directory " + dest.getAbsolutePath() + ".");
 			}
 		}
 
 		outputDir = dest;
-		return dumpFiles();
+		return dumpFiles(); // Call internal dumpFiles method after error-checking is done
 	}
 
 	private boolean dumpFiles(){	
@@ -79,7 +80,7 @@ public class FatProcessor {
 			// Create a new file using the given output directory to resolve paths
 			File realFile = outputDir.toPath().resolve(file.getName()).toFile();
 
-			if(VERBOSE)
+			if(VERBOSE) // Only log writing if in verbose mode
 				System.out.println("Writing: " + realFile.getAbsolutePath());
 			try {
 				if(realFile.exists()){
@@ -87,9 +88,10 @@ public class FatProcessor {
 				}else if(realFile.getParentFile().isDirectory()){
 					realFile.getParentFile().mkdirs();
 				}
+				
 				stream = new FileOutputStream(realFile);
 				
-				// Retrieve ByteBuffer data stored within entry and write to file
+				// Retrieve byte array stored within entry and write to file
 				stream.write(e.getBuffer().array());
 			} catch (IOException e1) {
 				return false;
@@ -110,13 +112,15 @@ public class FatProcessor {
 	}
 
 	private void addAll(FsDirectory fatDir, int tabs, File parentDir) throws IOException {
+		// Iterate through all entries in the current fs directory
 		for(FsDirectoryEntry e: fatDir){
+			// If it's a directory, recurse deeper
 			if (e.isDirectory()) {
-				if(VERBOSE)
+				if(VERBOSE) // Only log if verbose
 					for (int i = 0; i < tabs; i++)
 						System.out.print(' ');
-				if ((!e.getName().equals(".")) && (!e.getName().equals(".."))){
-					if(VERBOSE){
+				if ((!e.getName().equals(".")) && (!e.getName().equals(".."))){ // Avoid references to current and parent directory, if present
+					if(VERBOSE){ // Only log if verbose
 						for (int i = 0; i < tabs; i++)
 							System.out.print("  ");
 						System.out.println("[" + e + "]");
@@ -126,7 +130,7 @@ public class FatProcessor {
 					addAll(e.getDirectory(), tabs + 1, new File(parentDir, e.getName()));
 				}
 			} else {
-				if(VERBOSE){
+				if(VERBOSE){ // Only log if verbose
 					for (int i = 0; i < tabs; i++)
 						System.out.print("  ");
 					System.out.println(e);
@@ -134,12 +138,20 @@ public class FatProcessor {
 
 				// Create a new File from the given parent directory
 				File curFile = new File(parentDir, e.getName());
+				
+				// Retrieve chained representation of files in image
 				FsFile fatFile = e.getFile();
 
 				// Create ByteBuffer around contents of file. Todo: update so files with more than Integer.MAX_VALUE bytes are stored properly (possibly using a ByteBuffer array).
 				ByteBuffer buff = ByteBuffer.allocate((int)fatFile.getLength());
+				
+				// Read data from image file into buffer
 				fatFile.read(0, buff);
+				
+				// Create a new ImageFileEntry from the path of this data within the image and the raw bytes
 				ImageFileEntry entry = new ImageFileEntry(curFile, buff);
+				
+				// Add the new data and file entry into the list of all entries
 				files.add(entry);
 			}
 		}
@@ -186,25 +198,38 @@ public class FatProcessor {
 		private File file;
 
 		/**
-		 * 
-		 * @param file
-		 * @param buff
+		 * Creates an {@code ImageFileEntry} object composed of the given {@link File} path and byte data
+		 * @param path to this data inside the image
+		 * @param buff byte representation of this entry in the image
 		 */
 		public ImageFileEntry(File file, ByteBuffer buff){
 			this.file = file;
 			this.buff = buff;
 		}
+		
+		/**
+		 * Retrieves the byte data associated with this entry
+		 * @return a {@link ByteBuffer} that wraps this entry's byte data
+		 */
 
 		public ByteBuffer getBuffer(){
 			return buff;
 		}
 
+		/**
+		 * Retrieves the {@link File} representation of this entry's path in the image
+		 * @return a {@code File} denoting this entry's path in the image
+		 */
 		public File getFile(){
 			return file;
 		}
+		
+		/**
+		 * @return a String representation of this entry's path inside the image
+		 */
 
 		public String toString(){
-			return file.toString() + " buff is " + (buff == null ? "NULL" : "NOT null");
+			return file.toString();
 		}
 	}
 }
