@@ -23,7 +23,7 @@ public class FatPlugin extends AbstractUnitIdentifier{
 	}
 
 	public boolean identify(byte[] stream, IUnit unit) {
-		
+
 		return !checkBytes(stream, stream.length - OBB_SIG.length, OBB_SIG) // First check to make sure that we are not parsing an OBB file (FAT image with OBB footer)
 				&& checkBytes(stream, FAT_BOOT_SIG_OFFSET, FAT_BOOT_SIG); // Then check for FAT boot sector signature
 	}

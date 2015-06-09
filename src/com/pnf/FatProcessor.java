@@ -116,8 +116,8 @@ public class FatProcessor {
 				StringBuffer buff = null;
 				if(VERBOSE) // Only log if verbose
 					buff = new StringBuffer();
-					for (int i = 0; i < tabs; i++)
-						buff.append(' ');
+				for (int i = 0; i < tabs; i++)
+					buff.append(' ');
 				if ((!e.getName().equals(".")) && (!e.getName().equals(".."))){ // Avoid references to current and parent directory, if present
 					if(VERBOSE){ // Only log if verbose
 						for (int i = 0; i < tabs; i++)
