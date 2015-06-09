@@ -2,7 +2,7 @@ package com.pnf;
 
 import java.util.List;
 
-import com.pnf.FatProcessor.FileOutputEntry;
+import com.pnf.FatProcessor.ImageFileEntry;
 import com.pnfsoftware.jeb.core.properties.IPropertyDefinitionManager;
 import com.pnfsoftware.jeb.core.units.AbstractBinaryUnit;
 import com.pnfsoftware.jeb.core.units.IUnit;
@@ -20,10 +20,10 @@ public class FatUnit extends AbstractBinaryUnit {
 		FatProcessor core = new FatProcessor(getBytes());
 		
 		// Retrieve a list of the files stored within the image we are processing
-		List<FileOutputEntry> files = core.getStoredFiles();
+		List<ImageFileEntry> files = core.getStoredFiles();
 		
 		// Iterate through files in list of entries and delegate to respective subunits
-		for(FileOutputEntry f: files){
+		for(ImageFileEntry f: files){
 			// Create new subunit child
 			IUnit child = getUnitProcessor().process(f.getFile().getName(), f.getBuffer().array(), this);
 			

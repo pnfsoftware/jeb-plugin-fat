@@ -19,7 +19,7 @@ public class FatProcessor {
 	private File outputDir;
 	private FatFileSystem image;
 	private String type;
-	private List<FileOutputEntry> files;
+	private List<ImageFileEntry> files;
 
 	/**
 	 * Creates a new {@code FatCore} object from the given byte stream. All internal {@link File} objects will be created under the given {@code rootDirectory}.
@@ -72,7 +72,7 @@ public class FatProcessor {
 	private boolean dumpFiles(){	
 		FileOutputStream stream = null;
 
-		for(FileOutputEntry e: files){
+		for(ImageFileEntry e: files){
 			// Retrieve file stored within FileOutputEntry object
 			File file = e.getFile();
 
@@ -139,7 +139,7 @@ public class FatProcessor {
 				// Create ByteBuffer around contents of file. Todo: update so files with more than Integer.MAX_VALUE bytes are stored properly (possibly using a ByteBuffer array).
 				ByteBuffer buff = ByteBuffer.allocate((int)fatFile.getLength());
 				fatFile.read(0, buff);
-				FileOutputEntry entry = new FileOutputEntry(curFile, buff);
+				ImageFileEntry entry = new ImageFileEntry(curFile, buff);
 				files.add(entry);
 			}
 		}
@@ -156,11 +156,11 @@ public class FatProcessor {
 	}
 
 	/**
-	 * Returns a {@code List} representation of the {@link FileOutputEntry} objects created from this image.
-	 * <br>Note that all {@code File} objects stored within a {@link FileOutputEntry} are not created relative to any root directory.</p>
+	 * Returns a {@code List} representation of the {@link ImageFileEntry} objects created from this image.
+	 * <br>Note that all {@code File} objects stored within a {@link ImageFileEntry} are not created relative to any root directory.</p>
 	 * @return
 	 */
-	public List<FileOutputEntry> getStoredFiles(){
+	public List<ImageFileEntry> getStoredFiles(){
 		return files;
 	}
 
@@ -181,7 +181,7 @@ public class FatProcessor {
 		return type + " filesystem: " + files.toString();
 	}
 
-	public class FileOutputEntry {
+	public class ImageFileEntry {
 		private ByteBuffer buff;
 		private File file;
 
@@ -190,7 +190,7 @@ public class FatProcessor {
 		 * @param file
 		 * @param buff
 		 */
-		public FileOutputEntry(File file, ByteBuffer buff){
+		public ImageFileEntry(File file, ByteBuffer buff){
 			this.file = file;
 			this.buff = buff;
 		}
