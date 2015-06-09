@@ -15,7 +15,6 @@ import de.waldheinz.fs.util.RamDisk;
 
 public class FatProcessor {
 	private static boolean VERBOSE = false;
-
 	private File outputDir;
 	private FatFileSystem image;
 	private String type;
@@ -86,9 +85,9 @@ public class FatProcessor {
 				if(realFile.getParentFile().isDirectory()){
 					realFile.getParentFile().mkdirs();
 				}
-				
+
 				stream = new FileOutputStream(realFile);
-				
+
 				// Retrieve byte array stored within entry and write to file
 				stream.write(e.getBuffer().array());
 			} catch (IOException e1) {
@@ -123,7 +122,7 @@ public class FatProcessor {
 							System.out.print("  ");
 						System.out.println("[" + e + "]");
 					}
-					
+
 					// Recurse and parse files within the current directory
 					addAll(e.getDirectory(), tabs + 1, new File(parentDir, e.getName()));
 				}
@@ -136,19 +135,19 @@ public class FatProcessor {
 
 				// Create a new File from the given parent directory
 				File curFile = new File(parentDir, e.getName());
-				
+
 				// Retrieve chained representation of files in image
 				FsFile fatFile = e.getFile();
 
 				// Create ByteBuffer around contents of file. Todo: update so files with more than Integer.MAX_VALUE bytes are stored properly (possibly using a ByteBuffer array).
 				ByteBuffer buff = ByteBuffer.allocate((int)fatFile.getLength());
-				
+
 				// Read data from image file into buffer
 				fatFile.read(0, buff);
-				
+
 				// Create a new ImageFileEntry from the path of this data within the image and the raw bytes
 				ImageFileEntry entry = new ImageFileEntry(curFile, buff);
-				
+
 				// Add the new data and file entry into the list of all entries
 				files.add(entry);
 			}
@@ -175,7 +174,7 @@ public class FatProcessor {
 	}
 
 	/**
-	 * Retrieve a String representation of the filesystem type this image represents.
+	 * Retrieve a {@code String} representation of the filesystem type this image represents.
 	 * @return a {@code String} representation of this image's filesystem type
 	 */
 
@@ -204,7 +203,7 @@ public class FatProcessor {
 			this.file = file;
 			this.buff = buff;
 		}
-		
+
 		/**
 		 * Retrieves the byte data associated with this entry
 		 * @return a {@link ByteBuffer} that wraps this entry's byte data
@@ -221,7 +220,7 @@ public class FatProcessor {
 		public File getFile(){
 			return file;
 		}
-		
+
 		/**
 		 * @return a String representation of this entry's path inside the image
 		 */

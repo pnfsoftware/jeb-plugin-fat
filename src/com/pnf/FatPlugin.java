@@ -14,9 +14,9 @@ public class FatPlugin extends AbstractUnitIdentifier{
 	private static final String ID = "fat_plugin";
 	private static final int[] FAT_BOOT_SIG = {(byte) 0x55, (byte) 0xAA};
 	private static final int FAT_BOOT_SIG_OFFSET = 0x200 - FAT_BOOT_SIG.length;
-	
+
 	public static ILogger LOG = GlobalLog.getLogger(FatPlugin.class);
-	
+
 	public FatPlugin() {
 		super(ID, 0);
 	}
