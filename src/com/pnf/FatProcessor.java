@@ -83,9 +83,7 @@ public class FatProcessor {
 			if(VERBOSE) // Only log writing if in verbose mode
 				System.out.println("Writing: " + realFile.getAbsolutePath());
 			try {
-				if(realFile.exists()){
-					realFile.delete();
-				}else if(realFile.getParentFile().isDirectory()){
+				if(realFile.getParentFile().isDirectory()){
 					realFile.getParentFile().mkdirs();
 				}
 				
