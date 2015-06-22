@@ -107,6 +107,20 @@ public class FatProcessor {
 		// Return true if we made it here without issues
 		return true;
 	}
+	
+	private String getValidName(String name){
+		String invalid = "\\/:*?\"<>|";
+		StringBuffer buff = new StringBuffer(name.length() + 1);
+		
+		for(int i = 0; i < name.length(); i++){
+			char c = name.charAt(i);
+			boolean skip = (0 <= c && c <= 31) || invalid.indexOf(c) != -1;
+			if(!skip)
+				buff.append(c);
+		}
+		
+		return buff.toString();
+	}
 
 	private void addAll(FsDirectory fatDir, int tabs, File parentDir) throws IOException {
 		// Iterate through all entries in the current fs directory
@@ -138,7 +152,7 @@ public class FatProcessor {
 				}
 
 				// Create a new File from the given parent directory
-				File curFile = new File(parentDir, e.getName());
+				File curFile = new File(parentDir, getValidName(e.getName()));
 
 				// Retrieve chained representation of files in image
 				FsFile fatFile = e.getFile();
