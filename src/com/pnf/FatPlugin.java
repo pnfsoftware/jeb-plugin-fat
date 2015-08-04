@@ -1,10 +1,15 @@
 package com.pnf;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.SeekableByteChannel;
+
+import com.pnfsoftware.jeb.core.IUnitCreator;
 import com.pnfsoftware.jeb.core.PluginInformation;
+import com.pnfsoftware.jeb.core.input.IInput;
 import com.pnfsoftware.jeb.core.properties.IPropertyDefinitionManager;
 import com.pnfsoftware.jeb.core.properties.IPropertyManager;
 import com.pnfsoftware.jeb.core.units.AbstractUnitIdentifier;
-import com.pnfsoftware.jeb.core.units.IBinaryFrames;
 import com.pnfsoftware.jeb.core.units.IUnit;
 import com.pnfsoftware.jeb.core.units.IUnitProcessor;
 import com.pnfsoftware.jeb.util.logging.GlobalLog;
@@ -22,19 +27,29 @@ public class FatPlugin extends AbstractUnitIdentifier{
 		super(ID, 0);
 	}
 
-	public boolean identify(byte[] stream, IUnit unit) {
+	public boolean canIdentify(IInput stream, IUnitCreator unit) {
+		// First check to make sure that we are not parsing an OBB file (FAT image with OBB footer)
+		boolean isObb = true;
 
-		return !checkBytes(stream, stream.length - OBB_SIG.length, OBB_SIG) // First check to make sure that we are not parsing an OBB file (FAT image with OBB footer)
-				&& checkBytes(stream, FAT_BOOT_SIG_OFFSET, FAT_BOOT_SIG); // Then check for FAT boot sector signature
+		try (SeekableByteChannel ch = stream.getChannel()){
+			ch.position(ch.size() - OBB_SIG.length);
+			ByteBuffer buff = ByteBuffer.allocate(OBB_SIG.length);
+			ch.read(buff);
+			isObb = checkBytes(buff, 0, OBB_SIG);
+		} catch (IOException e) {
+			isObb = false;
+		}
+
+		return !isObb && checkBytes(stream, FAT_BOOT_SIG_OFFSET, FAT_BOOT_SIG); // Then check for FAT boot sector signature
 	}
 
 	public void initialize(IPropertyDefinitionManager parent, IPropertyManager pm) {
-		super.initialize(parent, pm);
+		super.initialize(parent);
 		/** Add any necessary property definitions here **/
 	}
 
 	@Override
-	public IUnit prepare(String name, byte[] data, IUnitProcessor processor, IUnit unit) {
+	public IUnit prepare(String name, IInput data, IUnitProcessor processor, IUnitCreator unit) {
 		IUnit fatUnit = new FatUnit(name, data, processor, unit, getPropertyDefinitionManager());
 		fatUnit.process();
 		return fatUnit;
@@ -43,10 +58,5 @@ public class FatPlugin extends AbstractUnitIdentifier{
 	@Override
 	public PluginInformation getPluginInformation() {
 		return new PluginInformation("FAT Plugin", "", "1.0", "PNF Software");
-	}
-
-	@Override
-	public IUnit reload(IBinaryFrames data, IUnitProcessor processor, IUnit unit) {
-		return null;
 	}
 }
