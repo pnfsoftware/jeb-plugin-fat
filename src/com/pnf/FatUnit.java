@@ -1,21 +1,28 @@
 package com.pnf;
 
-import java.util.List;
+import java.io.IOException;
+import java.io.InputStream;
 
-import com.pnf.FatProcessor.ImageFileEntry;
+import com.pnf.streams.ContainerStream;
+import com.pnf.streams.DocumentStream;
+import com.pnfsoftware.jeb.core.IUnitCreator;
 import com.pnfsoftware.jeb.core.events.J;
 import com.pnfsoftware.jeb.core.events.JebEvent;
+import com.pnfsoftware.jeb.core.input.BytesInput;
+import com.pnfsoftware.jeb.core.input.IInput;
 import com.pnfsoftware.jeb.core.properties.IPropertyDefinitionManager;
 import com.pnfsoftware.jeb.core.units.AbstractBinaryUnit;
 import com.pnfsoftware.jeb.core.units.IUnit;
 import com.pnfsoftware.jeb.core.units.IUnitProcessor;
+import com.pnfsoftware.jeb.core.units.impl.ContainerUnit;
+import com.pnfsoftware.jeb.util.IO;
 
 public class FatUnit extends AbstractBinaryUnit {
 	private static final String FILE_TYPE = "fat_image";
 	private StringBuffer desc;
 	private boolean descSet = false;
 
-	public FatUnit(String name, byte[] data, IUnitProcessor unitProcessor, IUnit parent, IPropertyDefinitionManager pdm){
+	public FatUnit(String name, IInput data, IUnitProcessor unitProcessor, IUnitCreator parent, IPropertyDefinitionManager pdm){
 		super(null, data, FILE_TYPE, name, unitProcessor, parent, pdm);
 	}
 
@@ -31,8 +38,16 @@ public class FatUnit extends AbstractBinaryUnit {
 	}
 
 	public boolean process(){
+		byte[] bytes = null;
+
+		try(InputStream stream = getInput().getStream()){
+			bytes = IO.readInputStream(stream);
+		}catch(IOException e){
+			FatPlugin.LOG.catching(e);
+		}
+
 		// Create a FatProcessor object that will handle interfacing with the FAT library
-		FatProcessor core = new FatProcessor(getBytes());
+		FatProcessor core = new FatProcessor(getName(), bytes);
 
 		// Check if description is null
 		if(desc == null)
@@ -43,20 +58,26 @@ public class FatUnit extends AbstractBinaryUnit {
 
 
 		// Retrieve a list of the files stored within the image we are processing
-		List<ImageFileEntry> files = core.getStoredFiles();
-
-		// Iterate through files in list of entries and delegate to respective subunits
-		for(ImageFileEntry f: files){
-			// Create new subunit child
-			IUnit child = getUnitProcessor().process(f.getFile().getName(), f.getBuffer().array(), this);
-
-			// Add newly created subunit to list of children
-			getChildren().add(child);
-		}
+		IUnit root = getContainerFor(core.getRootStream(), this);
+		addChildUnit(root);
 
 		// Throw unit change event
 		notifyListeners(new JebEvent(J.UnitChange));
 
 		return true;
+	}
+
+	private ContainerUnit getContainerFor(ContainerStream current, IUnit parentUnit){
+		ContainerUnit currentUnit = new ContainerUnit(current.getRawName(), getUnitProcessor(), parentUnit, getPropertyDefinitionManager());
+
+		for(ContainerStream c: current.getContainerStreams()){
+			currentUnit.addChildUnit(getContainerFor(c, currentUnit));
+		}
+
+		for(DocumentStream d: current.getDocumentStreams()){
+			currentUnit.addChildUnit(getUnitProcessor().process(d.getRawName(), new BytesInput(d.getBuffer().array()), currentUnit));
+		}
+
+		return currentUnit;
 	}
 }
