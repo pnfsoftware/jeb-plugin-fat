@@ -38,8 +38,8 @@ public class FatUnit extends AbstractBinaryUnit {
 	}
 
 	public boolean process(){
+		// Read the entire image into memory
 		byte[] bytes = null;
-
 		try(InputStream stream = getInput().getStream()){
 			bytes = IO.readInputStream(stream);
 		}catch(IOException e){
@@ -68,16 +68,20 @@ public class FatUnit extends AbstractBinaryUnit {
 	}
 
 	private ContainerUnit getContainerFor(ContainerStream current, IUnit parentUnit){
+		// Create a ContainerUnit for the current ContainerStream
 		ContainerUnit currentUnit = new ContainerUnit(current.getRawName(), getUnitProcessor(), parentUnit, getPropertyDefinitionManager());
 
+		// Traverse deeper into ContainerStream hierarchy and add ContainerUnits as we go
 		for(ContainerStream c: current.getContainerStreams()){
 			currentUnit.addChildUnit(getContainerFor(c, currentUnit));
 		}
 
+		// Add units for any DocumentStreams present at this level
 		for(DocumentStream d: current.getDocumentStreams()){
 			currentUnit.addChildUnit(getUnitProcessor().process(d.getRawName(), new BytesInput(d.getBuffer().array()), currentUnit));
 		}
 
+		// Return the top-level ContainerUnit
 		return currentUnit;
 	}
 }

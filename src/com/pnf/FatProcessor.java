@@ -80,6 +80,11 @@ public class FatProcessor {
 			}
 		}
 	}
+	
+	/**
+	 * Returns a {@code ContainerStream} representing the entire FAT storage
+	 * @return a {@code ContainerStream} object
+	 */
 
 	public ContainerStream getRootStream(){
 		return root;
