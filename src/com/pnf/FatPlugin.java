@@ -8,7 +8,6 @@ import com.pnfsoftware.jeb.core.IUnitCreator;
 import com.pnfsoftware.jeb.core.PluginInformation;
 import com.pnfsoftware.jeb.core.input.IInput;
 import com.pnfsoftware.jeb.core.properties.IPropertyDefinitionManager;
-import com.pnfsoftware.jeb.core.properties.IPropertyManager;
 import com.pnfsoftware.jeb.core.units.AbstractUnitIdentifier;
 import com.pnfsoftware.jeb.core.units.IUnit;
 import com.pnfsoftware.jeb.core.units.IUnitProcessor;
@@ -43,7 +42,7 @@ public class FatPlugin extends AbstractUnitIdentifier{
 		return !isObb && checkBytes(stream, FAT_BOOT_SIG_OFFSET, FAT_BOOT_SIG); // Then check for FAT boot sector signature
 	}
 
-	public void initialize(IPropertyDefinitionManager parent, IPropertyManager pm) {
+	public void initialize(IPropertyDefinitionManager parent) {
 		super.initialize(parent);
 		/** Add any necessary property definitions here **/
 	}
@@ -57,6 +56,6 @@ public class FatPlugin extends AbstractUnitIdentifier{
 
 	@Override
 	public PluginInformation getPluginInformation() {
-		return new PluginInformation("FAT Plugin", "", "1.0", "PNF Software");
+		return new PluginInformation("FAT Plugin", "", "1.1", "PNF Software");
 	}
 }
