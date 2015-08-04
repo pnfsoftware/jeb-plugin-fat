@@ -45,7 +45,8 @@ abstract class AbstractDirectory {
     private final boolean isRoot;
     private final FatType type;
     
-    private boolean dirty;
+    @SuppressWarnings("unused")
+	private boolean dirty;
     private int capacity;
     private String volumeLabel;
 
