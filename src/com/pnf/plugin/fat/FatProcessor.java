@@ -48,15 +48,17 @@ public class FatProcessor {
      */
     public FatProcessor(String name, byte[] stream) {
         try {
-            RamDisk rd = RamDisk.read(stream); // Create in-memory
-                                               // representation of disk image
-            image = FatFileSystem.read(rd, true); // Open as read-only to
-                                                  // prevent accidental writes
+            // Create in-memory representation of disk image
+            RamDisk rd = RamDisk.read(stream);
+
+            // Open as read-only to prevent accidental writes
+            image = FatFileSystem.read(rd, true);
         }
         catch(IOException e) {
         }
 
-        type = image.getFatType().toString(); // Store type of FAT image
+        // Store type of FAT image
+        type = image.getFatType().toString();
         root = new ContainerStream(null, name, false);
 
         /* Create list of files */
@@ -107,11 +109,8 @@ public class FatProcessor {
                     readError = true;
                 }
 
-                new DocumentStream(parentDir, e.getName(), buff, readError); // constructor
-                                                                             // handles
-                                                                             // adding
-                                                                             // to
-                                                                             // parent
+                // constructor handles adding to parent
+                new DocumentStream(parentDir, e.getName(), buff, readError);
             }
         }
     }

@@ -35,13 +35,12 @@ import com.pnfsoftware.jeb.core.units.impl.ContainerUnit;
 import com.pnfsoftware.jeb.util.IO;
 
 public class FatUnit extends AbstractBinaryUnit {
-    private static final String FILE_TYPE = "fat_image";
     private StringBuffer desc;
     private boolean descSet = false;
 
     public FatUnit(String name, IInput data, IUnitProcessor unitProcessor, IUnitCreator parent,
             IPropertyDefinitionManager pdm) {
-        super(null, data, FILE_TYPE, name, unitProcessor, parent, pdm);
+        super(null, data, FatPlugin.ID, name, unitProcessor, parent, pdm);
     }
 
     public String getDescription() {

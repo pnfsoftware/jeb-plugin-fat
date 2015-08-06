@@ -33,7 +33,7 @@ import com.pnfsoftware.jeb.util.logging.GlobalLog;
 import com.pnfsoftware.jeb.util.logging.ILogger;
 
 public class FatPlugin extends AbstractUnitIdentifier {
-    private static final String ID = "fat_plugin";
+    static final String ID = "fat";
     private static final int[] FAT_BOOT_SIG = { (byte)0x55, (byte)0xAA };
     private static final int FAT_BOOT_SIG_OFFSET = 0x200 - FAT_BOOT_SIG.length;
     private static final int[] OBB_SIG = { (byte)0x83, (byte)0x99, (byte)0x05, (byte)0x01 };
@@ -59,13 +59,8 @@ public class FatPlugin extends AbstractUnitIdentifier {
             isObb = false;
         }
 
-        return !isObb && checkBytes(stream, FAT_BOOT_SIG_OFFSET, FAT_BOOT_SIG); // Then
-                                                                                // check
-                                                                                // for
-                                                                                // FAT
-                                                                                // boot
-                                                                                // sector
-                                                                                // signature
+        // Then check for FAT boot sector signature
+        return !isObb && checkBytes(stream, FAT_BOOT_SIG_OFFSET, FAT_BOOT_SIG);
     }
 
     public void initialize(IPropertyDefinitionManager parent) {
@@ -82,6 +77,7 @@ public class FatPlugin extends AbstractUnitIdentifier {
 
     @Override
     public PluginInformation getPluginInformation() {
-        return new PluginInformation("FAT Plugin", "", "PNF Software", new Version(1, 0, 0));
+        return new PluginInformation("FAT Plugin", "Parser for FAT filesystem images", "PNF Software", new Version(1,
+                0, 0));
     }
 }
