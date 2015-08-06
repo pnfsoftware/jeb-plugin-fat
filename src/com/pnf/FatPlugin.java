@@ -6,6 +6,7 @@ import java.nio.channels.SeekableByteChannel;
 
 import com.pnfsoftware.jeb.core.IUnitCreator;
 import com.pnfsoftware.jeb.core.PluginInformation;
+import com.pnfsoftware.jeb.core.Version;
 import com.pnfsoftware.jeb.core.input.IInput;
 import com.pnfsoftware.jeb.core.properties.IPropertyDefinitionManager;
 import com.pnfsoftware.jeb.core.units.AbstractUnitIdentifier;
@@ -56,6 +57,6 @@ public class FatPlugin extends AbstractUnitIdentifier{
 
 	@Override
 	public PluginInformation getPluginInformation() {
-		return new PluginInformation("FAT Plugin", "", "1.1", "PNF Software");
+		return new PluginInformation("FAT Plugin", "", "PNF Software", new Version(1,0,0));
 	}
 }
