@@ -1,4 +1,4 @@
-package com.pnf;
+package com.pnf.plugin.fat;
 
 import com.pnfsoftware.jeb.core.units.NotificationType;
 import com.pnfsoftware.jeb.core.units.UnitNotification;

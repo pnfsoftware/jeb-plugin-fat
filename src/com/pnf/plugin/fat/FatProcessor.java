@@ -1,10 +1,10 @@
-package com.pnf;
+package com.pnf.plugin.fat;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import com.pnf.streams.ContainerStream;
-import com.pnf.streams.DocumentStream;
+import com.pnf.plugin.fat.streams.ContainerStream;
+import com.pnf.plugin.fat.streams.DocumentStream;
 
 import de.waldheinz.fs.FsDirectory;
 import de.waldheinz.fs.FsDirectoryEntry;

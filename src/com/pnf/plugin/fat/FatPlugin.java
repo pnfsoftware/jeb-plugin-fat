@@ -1,4 +1,4 @@
-package com.pnf;
+package com.pnf.plugin.fat;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

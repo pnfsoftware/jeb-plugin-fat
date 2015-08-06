@@ -1,10 +1,10 @@
-package com.pnf;
+package com.pnf.plugin.fat;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.pnf.streams.ContainerStream;
-import com.pnf.streams.DocumentStream;
+import com.pnf.plugin.fat.streams.ContainerStream;
+import com.pnf.plugin.fat.streams.DocumentStream;
 import com.pnfsoftware.jeb.core.IUnitCreator;
 import com.pnfsoftware.jeb.core.events.J;
 import com.pnfsoftware.jeb.core.events.JebEvent;

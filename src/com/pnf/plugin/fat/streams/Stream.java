@@ -1,9 +1,9 @@
-package com.pnf.streams;
+package com.pnf.plugin.fat.streams;
 
 import java.util.List;
 
-import com.pnf.Message;
-import com.pnf.MessageHandler;
+import com.pnf.plugin.fat.Message;
+import com.pnf.plugin.fat.MessageHandler;
 import com.pnfsoftware.jeb.core.units.UnitNotification;
 
 /**

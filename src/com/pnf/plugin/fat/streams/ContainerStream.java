@@ -1,4 +1,4 @@
-package com.pnf.streams;
+package com.pnf.plugin.fat.streams;
 
 import java.util.ArrayList;
 import java.util.List;
