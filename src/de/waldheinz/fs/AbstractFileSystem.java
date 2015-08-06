@@ -16,7 +16,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package de.waldheinz.fs;
 
 import java.io.IOException;
@@ -30,33 +30,34 @@ import java.io.IOException;
 public abstract class AbstractFileSystem implements FileSystem {
     private final boolean readOnly;
     private boolean closed;
-    
+
     /**
      * Creates a new {@code AbstractFileSystem}.
      * 
-     * @param readOnly if the file system should be read-only
+     * @param readOnly
+     *            if the file system should be read-only
      */
     public AbstractFileSystem(boolean readOnly) {
         this.closed = false;
         this.readOnly = readOnly;
     }
-    
+
     @Override
     public void close() throws IOException {
-        if (!isClosed()) {
-            if (!isReadOnly()) {
+        if(!isClosed()) {
+            if(!isReadOnly()) {
                 flush();
             }
-            
+
             closed = true;
         }
     }
-    
+
     @Override
     public final boolean isClosed() {
         return closed;
     }
-    
+
     @Override
     public final boolean isReadOnly() {
         return readOnly;
@@ -66,26 +67,27 @@ public abstract class AbstractFileSystem implements FileSystem {
      * Checks if this {@code FileSystem} was already closed, and throws an
      * exception if it was.
      *
-     * @throws IllegalStateException if this {@code FileSystem} was
-     *      already closed
+     * @throws IllegalStateException
+     *             if this {@code FileSystem} was already closed
      * @see #isClosed()
-     * @see #close() 
+     * @see #close()
      */
     protected final void checkClosed() throws IllegalStateException {
-        if (isClosed()) {
+        if(isClosed()) {
             throw new IllegalStateException("file system was already closed");
         }
     }
-    
+
     /**
-     * Checks if this {@code FileSystem} is read-only, and throws an
-     * exception if it is.
+     * Checks if this {@code FileSystem} is read-only, and throws an exception
+     * if it is.
      *
-     * @throws ReadOnlyException if this {@code FileSystem} is read-only
-     * @see #isReadOnly() 
+     * @throws ReadOnlyException
+     *             if this {@code FileSystem} is read-only
+     * @see #isReadOnly()
      */
     protected final void checkReadOnly() throws ReadOnlyException {
-        if (isReadOnly()) {
+        if(isReadOnly()) {
             throw new ReadOnlyException();
         }
     }

@@ -16,7 +16,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package de.waldheinz.fs;
 
 import java.io.IOException;
@@ -44,20 +44,25 @@ public interface FsFile extends FsObject {
     /**
      * Sets the length of this file.
      * 
-     * @param length the new length of this file
-     * @throws IOException on error updating the file size
+     * @param length
+     *            the new length of this file
+     * @throws IOException
+     *             on error updating the file size
      */
     public void setLength(long length) throws IOException;
 
     /**
-     * Reads from this file into the specified {@code ByteBuffer}. The
-     * first byte read will be put into the buffer at it's
-     * {@link ByteBuffer#position() position}, and the number of bytes read
-     * will equal the buffer's {@link ByteBuffer#remaining() remaining} bytes.
+     * Reads from this file into the specified {@code ByteBuffer}. The first
+     * byte read will be put into the buffer at it's
+     * {@link ByteBuffer#position() position}, and the number of bytes read will
+     * equal the buffer's {@link ByteBuffer#remaining() remaining} bytes.
      * 
-     * @param offset the offset into the file where to start reading
-     * @param dest the destination buffer where to put the bytes that were read
-     * @throws IOException on read error
+     * @param offset
+     *            the offset into the file where to start reading
+     * @param dest
+     *            the destination buffer where to put the bytes that were read
+     * @throws IOException
+     *             on read error
      */
     public void read(long offset, ByteBuffer dest) throws IOException;
 
@@ -67,19 +72,22 @@ public interface FsFile extends FsObject {
      * {@link ByteBuffer#remaining() remaining} bytes starting at it's
      * {@link ByteBuffer#position() position}.
      * 
-     * @param offset the offset into the file where the first byte will be
-     *      written
-     * @param src the source buffer to read the data from
-     * @throws ReadOnlyException if the file is read-only
-     * @throws IOException on write error
+     * @param offset
+     *            the offset into the file where the first byte will be written
+     * @param src
+     *            the source buffer to read the data from
+     * @throws ReadOnlyException
+     *             if the file is read-only
+     * @throws IOException
+     *             on write error
      */
-    public void write(long offset, ByteBuffer src)
-            throws ReadOnlyException, IOException;
-            
+    public void write(long offset, ByteBuffer src) throws ReadOnlyException, IOException;
+
     /**
      * Flush any possibly cached data to the disk.
      * 
-     * @throws IOException on error flushing
+     * @throws IOException
+     *             on error flushing
      */
     public void flush() throws IOException;
 }

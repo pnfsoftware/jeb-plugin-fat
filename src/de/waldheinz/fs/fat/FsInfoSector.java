@@ -52,16 +52,17 @@ final class FsInfoSector extends Sector {
      * Reads a {@code FsInfoSector} as specified by the given
      * {@code Fat32BootSector}.
      *
-     * @param bs the boot sector that specifies where the FS info sector is
-     *      stored
+     * @param bs
+     *            the boot sector that specifies where the FS info sector is
+     *            stored
      * @return the FS info sector that was read
-     * @throws IOException on read error
-     * @see Fat32BootSector#getFsInfoSectorNr() 
+     * @throws IOException
+     *             on read error
+     * @see Fat32BootSector#getFsInfoSectorNr()
      */
     public static FsInfoSector read(Fat32BootSector bs) throws IOException {
-        final FsInfoSector result =
-                new FsInfoSector(bs.getDevice(), offset(bs));
-        
+        final FsInfoSector result = new FsInfoSector(bs.getDevice(), offset(bs));
+
         result.read();
         result.verify();
         return result;
@@ -71,20 +72,21 @@ final class FsInfoSector extends Sector {
      * Creates an new {@code FsInfoSector} where the specified
      * {@code Fat32BootSector} indicates it should be.
      *
-     * @param bs the boot sector specifying the FS info sector storage
+     * @param bs
+     *            the boot sector specifying the FS info sector storage
      * @return the FS info sector instance that was created
-     * @throws IOException on write error
-     * @see Fat32BootSector#getFsInfoSectorNr() 
+     * @throws IOException
+     *             on write error
+     * @see Fat32BootSector#getFsInfoSectorNr()
      */
     public static FsInfoSector create(Fat32BootSector bs) throws IOException {
         final int offset = offset(bs);
 
-        if (offset == 0) throw new IOException(
-                "creating a FS info sector at offset 0 is strange");
-        
-        final FsInfoSector result =
-                new FsInfoSector(bs.getDevice(), offset(bs));
-        
+        if(offset == 0)
+            throw new IOException("creating a FS info sector at offset 0 is strange");
+
+        final FsInfoSector result = new FsInfoSector(bs.getDevice(), offset(bs));
+
         result.init();
         result.write();
         return result;
@@ -98,21 +100,23 @@ final class FsInfoSector extends Sector {
      * Sets the number of free clusters on the file system stored at
      * {@link #FREE_CLUSTERS_OFFSET}.
      *
-     * @param value the new free cluster count
+     * @param value
+     *            the new free cluster count
      * @see Fat#getFreeClusterCount()
      */
     public void setFreeClusterCount(long value) {
-        if (getFreeClusterCount() == value) return;
-        
+        if(getFreeClusterCount() == value)
+            return;
+
         set32(FREE_CLUSTERS_OFFSET, value);
     }
-    
+
     /**
      * Returns the number of free clusters on the file system as sepcified by
      * the 32-bit value at {@link #FREE_CLUSTERS_OFFSET}.
      *
      * @return the number of free clusters
-     * @see Fat#getFreeClusterCount() 
+     * @see Fat#getFreeClusterCount()
      */
     public long getFreeClusterCount() {
         return get32(FREE_CLUSTERS_OFFSET);
@@ -121,21 +125,23 @@ final class FsInfoSector extends Sector {
     /**
      * Sets the last allocated cluster that was used in the {@link Fat}.
      *
-     * @param value the FAT's last allocated cluster number
-     * @see Fat#getLastAllocatedCluster() 
+     * @param value
+     *            the FAT's last allocated cluster number
+     * @see Fat#getLastAllocatedCluster()
      */
     public void setLastAllocatedCluster(long value) {
-        if (getLastAllocatedCluster() == value) return;
-        
+        if(getLastAllocatedCluster() == value)
+            return;
+
         super.set32(LAST_ALLOCATED_OFFSET, value);
     }
 
     /**
-     * Returns the last allocated cluster number of the {@link Fat} of the
-     * file system this FS info sector is part of.
+     * Returns the last allocated cluster number of the {@link Fat} of the file
+     * system this FS info sector is part of.
      *
      * @return the last allocated cluster number
-     * @see Fat#getLastAllocatedCluster() 
+     * @see Fat#getLastAllocatedCluster()
      */
     public long getLastAllocatedCluster() {
         return super.get32(LAST_ALLOCATED_OFFSET);
@@ -143,32 +149,31 @@ final class FsInfoSector extends Sector {
 
     private void init() {
         buffer.position(0x00);
-        buffer.put((byte) 0x52);
-        buffer.put((byte) 0x52);
-        buffer.put((byte) 0x61);
-        buffer.put((byte) 0x41);
-        
+        buffer.put((byte)0x52);
+        buffer.put((byte)0x52);
+        buffer.put((byte)0x61);
+        buffer.put((byte)0x41);
+
         /* 480 reserved bytes */
 
         buffer.position(0x1e4);
-        buffer.put((byte) 0x72);
-        buffer.put((byte) 0x72);
-        buffer.put((byte) 0x41);
-        buffer.put((byte) 0x61);
-        
+        buffer.put((byte)0x72);
+        buffer.put((byte)0x72);
+        buffer.put((byte)0x41);
+        buffer.put((byte)0x61);
+
         setFreeClusterCount(-1);
         setLastAllocatedCluster(Fat.FIRST_CLUSTER);
 
         buffer.position(SIGNATURE_OFFSET);
-        buffer.put((byte) 0x55);
-        buffer.put((byte) 0xaa);
-        
+        buffer.put((byte)0x55);
+        buffer.put((byte)0xaa);
+
         markDirty();
     }
 
     private void verify() throws IOException {
-        if (!(get8(SIGNATURE_OFFSET) == 0x55) ||
-                !(get8(SIGNATURE_OFFSET + 1) == 0xaa)) {
+        if(!(get8(SIGNATURE_OFFSET) == 0x55) || !(get8(SIGNATURE_OFFSET + 1) == 0xaa)) {
 
             throw new IOException("invalid FS info sector signature");
         }
@@ -176,12 +181,11 @@ final class FsInfoSector extends Sector {
 
     @Override
     public String toString() {
-        return FsInfoSector.class.getSimpleName() +
-                " [freeClusterCount=" + getFreeClusterCount() + //NOI18N
-                ", lastAllocatedCluster=" + getLastAllocatedCluster() + //NOI18N
-                ", offset=" + getOffset() + //NOI18N
-                ", dirty=" + isDirty() + //NOI18N
-                "]"; //NOI18N
+        return FsInfoSector.class.getSimpleName() + " [freeClusterCount=" + getFreeClusterCount() + // NOI18N
+                ", lastAllocatedCluster=" + getLastAllocatedCluster() + // NOI18N
+                ", offset=" + getOffset() + // NOI18N
+                ", dirty=" + isDirty() + // NOI18N
+                "]"; // NOI18N
     }
-    
+
 }

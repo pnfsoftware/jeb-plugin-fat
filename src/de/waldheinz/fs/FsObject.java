@@ -16,7 +16,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package de.waldheinz.fs;
 
 /**
@@ -27,19 +27,19 @@ package de.waldheinz.fs;
  * @author Matthias Treydte &lt;waldheinz at gmail.com&gt;
  */
 public interface FsObject {
-    
+
     /**
      * Checks if this {@code FsObject} is still valid.
      * 
      * An object is not valid anymore if it has been removed from the
      * filesystem. All invocations on methods (except this method and the
-     * methods inherited from {@link java.lang.Object}) of
-     * invalid objects must throw an {@link IllegalStateException}.
+     * methods inherited from {@link java.lang.Object}) of invalid objects must
+     * throw an {@link IllegalStateException}.
      * 
      * @return if this {@code FsObject} is still valid
      */
     public boolean isValid();
-    
+
     /**
      * Checks if this {@code FsObject} is read-only. Any attempt to modify a
      * read-only {@code FsObject} must result in a {@link ReadOnlyException}
@@ -49,5 +49,5 @@ public interface FsObject {
      * @since 0.6
      */
     public boolean isReadOnly();
-    
+
 }

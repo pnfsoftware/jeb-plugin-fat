@@ -15,7 +15,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package de.waldheinz.fs;
 
 import de.waldheinz.fs.fat.FatFileSystem;
@@ -27,9 +27,10 @@ import java.io.IOException;
  * @author Matthias Treydte &lt;waldheinz at gmail.com&gt;
  */
 public class FileSystemFactory {
-    
-    private FileSystemFactory() { }
-    
+
+    private FileSystemFactory() {
+    }
+
     /**
      * <p>
      * Creates a new {@link FileSystem} for the specified {@code device}. When
@@ -38,16 +39,18 @@ public class FileSystemFactory {
      * Otherwise severe file system corruption may occur.
      * </p>
      *
-     * @param device the device to create the file system for
-     * @param readOnly if the file system should be openend read-only
+     * @param device
+     *            the device to create the file system for
+     * @param readOnly
+     *            if the file system should be openend read-only
      * @return a new {@code FileSystem} instance for the specified device
-     * @throws IOException on read error, or if the file system type could
-     *      not be determined
+     * @throws IOException
+     *             on read error, or if the file system type could not be
+     *             determined
      */
-    public static FileSystem create(BlockDevice device, boolean readOnly)
-            throws IOException {
-            
+    public static FileSystem create(BlockDevice device, boolean readOnly) throws IOException {
+
         return FatFileSystem.read(device, readOnly);
     }
-    
+
 }

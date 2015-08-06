@@ -15,7 +15,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package de.waldheinz.fs.fat;
 
 import de.waldheinz.fs.AbstractFsObject;
@@ -26,8 +26,8 @@ import java.io.EOFException;
 import java.nio.ByteBuffer;
 
 /**
- * The in-memory representation of a single file (chain of clusters) on a
- * FAT file system.
+ * The in-memory representation of a single file (chain of clusters) on a FAT
+ * file system.
  * 
  * @author Matthias Treydte &lt;waldheinz at gmail.com&gt;
  * @since 0.6
@@ -35,135 +35,142 @@ import java.nio.ByteBuffer;
 public final class FatFile extends AbstractFsObject implements FsFile {
     private final FatDirectoryEntry entry;
     private final ClusterChain chain;
-    
+
     private FatFile(FatDirectoryEntry myEntry, ClusterChain chain) {
         super(myEntry.isReadOnly());
-        
+
         this.entry = myEntry;
         this.chain = chain;
     }
-    
-    static FatFile get(Fat fat, FatDirectoryEntry entry)
-            throws IOException {
-        
-        if (entry.isDirectory())
+
+    static FatFile get(Fat fat, FatDirectoryEntry entry) throws IOException {
+
+        if(entry.isDirectory())
             throw new IllegalArgumentException(entry + " is a directory");
-            
-        final ClusterChain cc = new ClusterChain(
-                fat, entry.getStartCluster(), entry.isReadonlyFlag());
-                
-        if (entry.getLength() > cc.getLengthOnDisk()) throw new IOException(
-                "entry (" + entry.getLength() +
-                ") is larger than associated cluster chain ("
-                + cc.getLengthOnDisk() + ")");
-                
+
+        final ClusterChain cc = new ClusterChain(fat, entry.getStartCluster(), entry.isReadonlyFlag());
+
+        if(entry.getLength() > cc.getLengthOnDisk())
+            throw new IOException("entry (" + entry.getLength() + ") is larger than associated cluster chain ("
+                    + cc.getLengthOnDisk() + ")");
+
         return new FatFile(entry, cc);
     }
-    
+
     /**
-     * Returns the length of this file in bytes. This is the length that
-     * is stored in the directory entry that is associated with this file.
+     * Returns the length of this file in bytes. This is the length that is
+     * stored in the directory entry that is associated with this file.
      * 
      * @return long the length that is recorded for this file
      */
     @Override
     public long getLength() {
         checkValid();
-        
+
         return entry.getLength();
     }
-    
+
     /**
      * Sets the size (in bytes) of this file. Because
      * {@link #write(long, java.nio.ByteBuffer) writing} to the file will grow
      * it automatically if needed, this method is mainly usefull for truncating
-     * a file. 
+     * a file.
      *
-     * @param length the new length of the file in bytes
-     * @throws ReadOnlyException if this file is read-only
-     * @throws IOException on error updating the file size
+     * @param length
+     *            the new length of the file in bytes
+     * @throws ReadOnlyException
+     *             if this file is read-only
+     * @throws IOException
+     *             on error updating the file size
      */
     @Override
     public void setLength(long length) throws ReadOnlyException, IOException {
         checkWritable();
-        
-        if (getLength() == length) return;
-        
+
+        if(getLength() == length)
+            return;
+
         updateTimeStamps(true);
         chain.setSize(length);
-        
+
         this.entry.setStartCluster(chain.getStartCluster());
         this.entry.setLength(length);
     }
-    
+
     /**
      * <p>
      * {@inheritDoc}
-     * </p><p>
+     * </p>
+     * <p>
      * Unless this file is {@link #isReadOnly() read-ony}, this method also
      * updates the "last accessed" field in the directory entry that is
      * associated with this file.
      * </p>
      * 
-     * @param offset {@inheritDoc}
-     * @param dest {@inheritDoc}
+     * @param offset
+     *            {@inheritDoc}
+     * @param dest
+     *            {@inheritDoc}
      * @see FatDirectoryEntry#setLastAccessed(long)
      */
     @Override
     public void read(long offset, ByteBuffer dest) throws IOException {
         checkValid();
-        
+
         final int len = dest.remaining();
-        
-        if (len == 0) return;
-        
-        if (offset + len > getLength()) {
+
+        if(len == 0)
+            return;
+
+        if(offset + len > getLength()) {
             throw new EOFException();
         }
-        
-        if (!isReadOnly()) {
+
+        if(!isReadOnly()) {
             updateTimeStamps(false);
         }
-        
+
         chain.readData(offset, dest);
     }
 
     /**
      * <p>
      * {@inheritDoc}
-     * </p><p>
-     * If the data to be written extends beyond the current
-     * {@link #getLength() length} of this file, an attempt is made to
-     * {@link #setLength(long) grow} the file so that the data will fit.
-     * Additionally, this method updates the "last accessed" and "last modified"
-     * fields on the directory entry that is associated with this file.
+     * </p>
+     * <p>
+     * If the data to be written extends beyond the current {@link #getLength()
+     * length} of this file, an attempt is made to {@link #setLength(long) grow}
+     * the file so that the data will fit. Additionally, this method updates the
+     * "last accessed" and "last modified" fields on the directory entry that is
+     * associated with this file.
      * </p>
      *
-     * @param offset {@inheritDoc}
-     * @param srcBuf {@inheritDoc}
+     * @param offset
+     *            {@inheritDoc}
+     * @param srcBuf
+     *            {@inheritDoc}
      */
     @Override
-    public void write(long offset, ByteBuffer srcBuf)
-            throws ReadOnlyException, IOException {
+    public void write(long offset, ByteBuffer srcBuf) throws ReadOnlyException, IOException {
 
         checkWritable();
 
         updateTimeStamps(true);
-        
+
         final long lastByte = offset + srcBuf.remaining();
 
-        if (lastByte > getLength()) {
+        if(lastByte > getLength()) {
             setLength(lastByte);
         }
-        
+
         chain.writeData(offset, srcBuf);
     }
-    
+
     private void updateTimeStamps(boolean write) {
         final long now = System.currentTimeMillis();
         entry.setLastAccessed(now);
-        
-        if (write) {
+
+        if(write) {
             entry.setLastModified(now);
         }
     }
@@ -173,27 +180,28 @@ public final class FatFile extends AbstractFsObject implements FsFile {
      * make sure that all data is written out to disk use the
      * {@link FatFileSystem#flush()} method.
      *
-     * @throws ReadOnlyException if this {@code FatFile} is read-only
+     * @throws ReadOnlyException
+     *             if this {@code FatFile} is read-only
      */
     @Override
     public void flush() throws ReadOnlyException {
         checkWritable();
-        
+
         /* nothing else to do */
     }
-    
+
     /**
-     * Returns the {@code ClusterChain} that holds the contents of
-     * this {@code FatFile}.
+     * Returns the {@code ClusterChain} that holds the contents of this
+     * {@code FatFile}.
      *
      * @return the file's {@code ClusterChain}
      */
     ClusterChain getChain() {
         checkValid();
-        
+
         return chain;
     }
-    
+
     /**
      * Returns a human-readable string representation of this {@code FatFile},
      * mainly for debugging purposes.
@@ -202,8 +210,8 @@ public final class FatFile extends AbstractFsObject implements FsFile {
      */
     @Override
     public String toString() {
-        return getClass().getSimpleName() + " [length=" + getLength() +
-                ", first cluster=" + chain.getStartCluster() + "]";
+        return getClass().getSimpleName() + " [length=" + getLength() + ", first cluster=" + chain.getStartCluster()
+                + "]";
     }
-    
+
 }

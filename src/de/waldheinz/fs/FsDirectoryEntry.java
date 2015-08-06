@@ -16,7 +16,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package de.waldheinz.fs;
 
 import java.io.IOException;
@@ -34,21 +34,23 @@ public interface FsDirectoryEntry extends FsObject {
      * Compares directory entries alphabetically, with all directories coming
      * before all files.
      */
-    public final static Comparator<FsDirectoryEntry> DIRECTORY_ENTRY_COMPARATOR =
-            new Comparator<FsDirectoryEntry>() {
+    public final static Comparator<FsDirectoryEntry> DIRECTORY_ENTRY_COMPARATOR = new Comparator<FsDirectoryEntry>() {
 
         @Override
         public int compare(FsDirectoryEntry e1, FsDirectoryEntry e2) {
-            if (e2.isDirectory() == e1.isDirectory()) {
+            if(e2.isDirectory() == e1.isDirectory()) {
                 /* compare names */
                 return e1.getName().compareTo(e2.getName());
-            } else {
-                if (e2.isDirectory()) return 1;
-                else return -1;
+            }
+            else {
+                if(e2.isDirectory())
+                    return 1;
+                else
+                    return -1;
             }
         }
     };
-    
+
     /**
      * Gets the name of this entry.
      *
@@ -60,9 +62,9 @@ public interface FsDirectoryEntry extends FsObject {
      * Gets the directory this entry is a part of.
      * 
      * @return the parent directory of this entry, or {@code null}
-     * @deprecated deprecated since version 0.6 because in the presence of
-     *      hard links it might not always be possible to determine the parent
-     *      directory of an entry
+     * @deprecated deprecated since version 0.6 because in the presence of hard
+     *             links it might not always be possible to determine the parent
+     *             directory of an entry
      */
     @Deprecated
     public FsDirectory getParent();
@@ -70,10 +72,11 @@ public interface FsDirectoryEntry extends FsObject {
     /**
      * Gets the last modification time of this entry.
      *
-     * @return the last modification time of the entry as milliseconds
-     *      since 1970, or {@code 0} if this filesystem does not support
-     *      getting the last modification time
-     * @throws IOException if an error occurs retrieving the time stamp
+     * @return the last modification time of the entry as milliseconds since
+     *         1970, or {@code 0} if this filesystem does not support getting
+     *         the last modification time
+     * @throws IOException
+     *             if an error occurs retrieving the time stamp
      */
     public long getLastModified() throws IOException;
 
@@ -81,7 +84,8 @@ public interface FsDirectoryEntry extends FsObject {
      * Returns the time when this entry was created as ms since 1970.
      *
      * @return the creation time, or 0 if this feature is not supported
-     * @throws IOException on error retrieving the time stamp
+     * @throws IOException
+     *             on error retrieving the time stamp
      */
     public long getCreated() throws IOException;
 
@@ -89,10 +93,11 @@ public interface FsDirectoryEntry extends FsObject {
      * Returns the time when this entry was last accessed as ms since 1970.
      *
      * @return the last access time, or 0 if this feature is not supported
-     * @throws IOException on error retrieving the last access time
+     * @throws IOException
+     *             on error retrieving the last access time
      */
     public long getLastAccessed() throws IOException;
-    
+
     /**
      * Is this entry refering to a file?
      * 
@@ -110,16 +115,20 @@ public interface FsDirectoryEntry extends FsObject {
     /**
      * Sets the name of this entry.
      * 
-     * @param newName the new name of this entry
-     * @throws IOException on error setting the new name
+     * @param newName
+     *            the new name of this entry
+     * @throws IOException
+     *             on error setting the new name
      */
     public void setName(String newName) throws IOException;
 
     /**
      * Sets the last modification time of this entry.
      * 
-     * @param lastModified the new last modification time of this entry
-     * @throws IOException on write error
+     * @param lastModified
+     *            the new last modification time of this entry
+     * @throws IOException
+     *             on write error
      */
     public void setLastModified(long lastModified) throws IOException;
 
@@ -128,7 +137,8 @@ public interface FsDirectoryEntry extends FsObject {
      * {@code isFile} returns {@code true}.
      * 
      * @return the file described by this entry
-     * @throws IOException on error accessing the file
+     * @throws IOException
+     *             on error accessing the file
      */
     public FsFile getFile() throws IOException;
 
@@ -137,10 +147,11 @@ public interface FsDirectoryEntry extends FsObject {
      * if <code>isDirectory</code> returns true.
      * 
      * @return The directory described by this entry
-     * @throws IOException on read error
+     * @throws IOException
+     *             on read error
      */
     public FsDirectory getDirectory() throws IOException;
-    
+
     /**
      * Indicate if the entry has been modified in memory (ie need to be saved)
      * 

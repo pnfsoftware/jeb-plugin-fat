@@ -34,25 +34,27 @@ final class Fat16RootDirectory extends AbstractDirectory {
     private Fat16RootDirectory(Fat16BootSector bs, boolean readOnly) {
         super(bs.getFatType(), bs.getRootDirEntryCount(), readOnly, true);
 
-        if (bs.getRootDirEntryCount() <= 0) throw new IllegalArgumentException(
-                "root directory size is " + bs.getRootDirEntryCount());
-        
+        if(bs.getRootDirEntryCount() <= 0)
+            throw new IllegalArgumentException("root directory size is " + bs.getRootDirEntryCount());
+
         this.deviceOffset = bs.getRootDirOffset();
         this.device = bs.getDevice();
     }
-    
+
     /**
      * Reads a {@code Fat16RootDirectory} as indicated by the specified
      * {@code Fat16BootSector}.
      *
-     * @param bs the boot sector that describes the root directory to read
-     * @param readOnly if the directory shold be created read-only
+     * @param bs
+     *            the boot sector that describes the root directory to read
+     * @param readOnly
+     *            if the directory shold be created read-only
      * @return the directory that was read
-     * @throws IOException on read error
+     * @throws IOException
+     *             on read error
      */
-    public static Fat16RootDirectory read(
-            Fat16BootSector bs, boolean readOnly) throws IOException {
-        
+    public static Fat16RootDirectory read(Fat16BootSector bs, boolean readOnly) throws IOException {
+
         final Fat16RootDirectory result = new Fat16RootDirectory(bs, readOnly);
         result.read();
         return result;
@@ -63,18 +65,19 @@ final class Fat16RootDirectory extends AbstractDirectory {
      * {@code Fat16BootSector}. The directory will always be created in
      * read-write mode.
      *
-     * @param bs the boot sector that describes the root directory to create
+     * @param bs
+     *            the boot sector that describes the root directory to create
      * @return the directory that was created
-     * @throws IOException on write error
+     * @throws IOException
+     *             on write error
      */
-    public static Fat16RootDirectory create(
-            Fat16BootSector bs) throws IOException {
-        
+    public static Fat16RootDirectory create(Fat16BootSector bs) throws IOException {
+
         final Fat16RootDirectory result = new Fat16RootDirectory(bs, false);
         result.flush();
         return result;
     }
-    
+
     @Override
     protected void read(ByteBuffer data) throws IOException {
         this.device.read(deviceOffset, data);
@@ -97,17 +100,18 @@ final class Fat16RootDirectory extends AbstractDirectory {
     }
 
     /**
-     * As a FAT12/16 root directory can not change it's size, this method
-     * throws a {@code DirectoryFullException} if the requested size is
-     * larger than {@link #getCapacity()} and does nothing else.
+     * As a FAT12/16 root directory can not change it's size, this method throws
+     * a {@code DirectoryFullException} if the requested size is larger than
+     * {@link #getCapacity()} and does nothing else.
      *
-     * @param entryCount {@inheritDoc}
+     * @param entryCount
+     *            {@inheritDoc}
      */
     @Override
     protected void changeSize(int entryCount) throws DirectoryFullException {
-        if (getCapacity() < entryCount) {
+        if(getCapacity() < entryCount) {
             throw new DirectoryFullException(getCapacity(), entryCount);
         }
     }
-    
+
 }

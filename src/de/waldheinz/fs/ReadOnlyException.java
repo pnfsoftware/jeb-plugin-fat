@@ -26,12 +26,12 @@ package de.waldheinz.fs;
  * 
  * @author Matthias Treydte &lt;waldheinz at gmail.com&gt;
  * @see FileSystem#isReadOnly()
- * @see BlockDevice#isReadOnly() 
+ * @see BlockDevice#isReadOnly()
  */
 public final class ReadOnlyException extends RuntimeException {
 
     private final static long serialVersionUID = 1;
-    
+
     /**
      * Creates a new instance of {@code ReadOnlyException}.
      *

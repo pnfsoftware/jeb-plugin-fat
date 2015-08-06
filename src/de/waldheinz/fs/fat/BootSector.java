@@ -36,11 +36,11 @@ abstract class BootSector extends Sector {
      * Offset to the byte specifying the number of FATs.
      *
      * @see #getNrFats()
-     * @see #setNrFats(int) 
+     * @see #setNrFats(int)
      */
     public static final int FAT_COUNT_OFFSET = 16;
     public static final int RESERVED_SECTORS_OFFSET = 14;
-    
+
     public static final int TOTAL_SECTORS_16_OFFSET = 19;
     public static final int TOTAL_SECTORS_32_OFFSET = 32;
 
@@ -58,95 +58,88 @@ abstract class BootSector extends Sector {
      * @see #setSectorsPerCluster(int)
      */
     public static final int SECTORS_PER_CLUSTER_OFFSET = 0x0d;
-    
+
     public static final int EXTENDED_BOOT_SIGNATURE = 0x29;
 
     /**
      * The size of a boot sector in bytes.
      */
     public final static int SIZE = 512;
-    
+
     protected BootSector(BlockDevice device) {
         super(device, 0, SIZE);
         markDirty();
     }
-    
+
     public static BootSector read(BlockDevice device) throws IOException {
         final ByteBuffer bb = ByteBuffer.allocate(512);
         bb.order(ByteOrder.LITTLE_ENDIAN);
         device.read(0, bb);
-        
-        if ((bb.get(510) & 0xff) != 0x55 ||
-                (bb.get(511) & 0xff) != 0xaa) throw new IOException(
-                "missing boot sector signature");
-                
+
+        if((bb.get(510) & 0xff) != 0x55 || (bb.get(511) & 0xff) != 0xaa)
+            throw new IOException("missing boot sector signature");
+
         final byte sectorsPerCluster = bb.get(SECTORS_PER_CLUSTER_OFFSET);
 
-        if (sectorsPerCluster <= 0) throw new IOException(
-                "suspicious sectors per cluster count " + sectorsPerCluster);
-                
-        final int rootDirEntries = bb.getShort(
-                Fat16BootSector.ROOT_DIR_ENTRIES_OFFSET);
-        final int rootDirSectors = ((rootDirEntries * 32) +
-                (device.getSectorSize() - 1)) / device.getSectorSize();
+        if(sectorsPerCluster <= 0)
+            throw new IOException("suspicious sectors per cluster count " + sectorsPerCluster);
 
-        final int total16 =
-                bb.getShort(TOTAL_SECTORS_16_OFFSET) & 0xffff;
-        final long total32 =
-                bb.getInt(TOTAL_SECTORS_32_OFFSET) & 0xffffffffl;
-        
+        final int rootDirEntries = bb.getShort(Fat16BootSector.ROOT_DIR_ENTRIES_OFFSET);
+        final int rootDirSectors = ((rootDirEntries * 32) + (device.getSectorSize() - 1)) / device.getSectorSize();
+
+        final int total16 = bb.getShort(TOTAL_SECTORS_16_OFFSET) & 0xffff;
+        final long total32 = bb.getInt(TOTAL_SECTORS_32_OFFSET) & 0xffffffffl;
+
         final long totalSectors = total16 == 0 ? total32 : total16;
-        
-        final int fatSz16 =
-                bb.getShort(Fat16BootSector.SECTORS_PER_FAT_OFFSET)  & 0xffff;
-        final long fatSz32 =
-                bb.getInt(Fat32BootSector.SECTORS_PER_FAT_OFFSET) & 0xffffffffl;
-                
+
+        final int fatSz16 = bb.getShort(Fat16BootSector.SECTORS_PER_FAT_OFFSET) & 0xffff;
+        final long fatSz32 = bb.getInt(Fat32BootSector.SECTORS_PER_FAT_OFFSET) & 0xffffffffl;
+
         final long fatSz = fatSz16 == 0 ? fatSz32 : fatSz16;
         final int reservedSectors = bb.getShort(RESERVED_SECTORS_OFFSET);
         final int fatCount = bb.get(FAT_COUNT_OFFSET);
-        final long dataSectors = totalSectors - (reservedSectors +
-                (fatCount * fatSz) + rootDirSectors);
-                
+        final long dataSectors = totalSectors - (reservedSectors + (fatCount * fatSz) + rootDirSectors);
+
         final long clusterCount = dataSectors / sectorsPerCluster;
-        
-        final BootSector result =
-                (clusterCount > Fat16BootSector.MAX_FAT16_CLUSTERS) ?
-            new Fat32BootSector(device) : new Fat16BootSector(device);
-            
+
+        final BootSector result = (clusterCount > Fat16BootSector.MAX_FAT16_CLUSTERS) ? new Fat32BootSector(device)
+                : new Fat16BootSector(device);
+
         result.read();
         return result;
     }
-    
+
     public abstract FatType getFatType();
-    
+
     /**
      * Gets the number of sectors per FAT.
      * 
      * @return the sectors per FAT
      */
     public abstract long getSectorsPerFat();
-    
+
     /**
      * Sets the number of sectors/fat
      * 
-     * @param v  the new number of sectors per fat
+     * @param v
+     *            the new number of sectors per fat
      */
     public abstract void setSectorsPerFat(long v);
 
     public abstract void setSectorCount(long count);
 
     public abstract int getRootDirEntryCount();
-    
+
     public abstract long getSectorCount();
-    
+
     /**
      * Gets the offset (in bytes) of the fat with the given index
      * 
      * @param bs
-     * @param fatNr (0..)
+     * @param fatNr
+     *            (0..)
      * @return long
-     * @throws IOException 
+     * @throws IOException
      */
     public final long getFatOffset(int fatNr) {
         long sectSize = this.getBytesPerSector();
@@ -166,7 +159,7 @@ abstract class BootSector extends Sector {
      * 
      * @param bs
      * @return long
-     * @throws IOException 
+     * @throws IOException
      */
     public final long getRootDirOffset() {
         long sectSize = this.getBytesPerSector();
@@ -174,7 +167,7 @@ abstract class BootSector extends Sector {
         int fats = this.getNrFats();
 
         long offset = getFatOffset(0);
-        
+
         offset += fats * sectsPerFat * sectSize;
 
         return offset;
@@ -185,57 +178,59 @@ abstract class BootSector extends Sector {
      * 
      * @param bs
      * @return long
-     * @throws IOException 
+     * @throws IOException
      */
     public final long getFilesOffset() {
         long offset = getRootDirOffset();
-        
+
         offset += this.getRootDirEntryCount() * 32l;
-        
+
         return offset;
     }
-    
+
     /**
-     * Returns the offset to the file system type label, as this differs
-     * between FAT12/16 and FAT32.
+     * Returns the offset to the file system type label, as this differs between
+     * FAT12/16 and FAT32.
      *
      * @return the offset to the file system type label
      */
     public abstract int getFileSystemTypeLabelOffset();
-    
+
     public abstract int getExtendedBootSignatureOffset();
-    
+
     public void init() throws IOException {
         setBytesPerSector(getDevice().getSectorSize());
         setSectorCount(getDevice().getSize() / getDevice().getSectorSize());
         set8(getExtendedBootSignatureOffset(), EXTENDED_BOOT_SIGNATURE);
 
-        /* magic bytes needed by some windows versions to recognize a boot
-         * sector. these are x86 jump instructions which lead into
-         * nirvana when executed, but we're currently unable to produce really
-         * bootable images anyway. So... */
+        /*
+         * magic bytes needed by some windows versions to recognize a boot
+         * sector. these are x86 jump instructions which lead into nirvana when
+         * executed, but we're currently unable to produce really bootable
+         * images anyway. So...
+         */
         set8(0x00, 0xeb);
         set8(0x01, 0x3c);
         set8(0x02, 0x90);
-        
+
         /* the boot sector signature */
         set8(0x1fe, 0x55);
         set8(0x1ff, 0xaa);
     }
-    
+
     /**
      * Returns the file system type label string.
      *
      * @return the file system type string
      * @see #setFileSystemTypeLabel(java.lang.String)
-     * @see #getFileSystemTypeLabelOffset() 
+     * @see #getFileSystemTypeLabelOffset()
      * @see #FILE_SYSTEM_TYPE_LENGTH
      */
     public String getFileSystemTypeLabel() {
         final StringBuilder sb = new StringBuilder(FILE_SYSTEM_TYPE_LENGTH);
 
-        for (int i=0; i < FILE_SYSTEM_TYPE_LENGTH; i++) {
-            sb.append ((char) get8(getFileSystemTypeLabelOffset() + i));
+        for(int i = 0; i < FILE_SYSTEM_TYPE_LENGTH; i++) {
+            sb.append((char)get8(getFileSystemTypeLabelOffset() + i));
         }
 
         return sb.toString();
@@ -244,18 +239,19 @@ abstract class BootSector extends Sector {
     /**
      * 
      *
-     * @param fsType the
-     * @throws IllegalArgumentException if the length of the specified string
-     *      does not equal {@link #FILE_SYSTEM_TYPE_LENGTH}
+     * @param fsType
+     *            the
+     * @throws IllegalArgumentException
+     *             if the length of the specified string does not equal
+     *             {@link #FILE_SYSTEM_TYPE_LENGTH}
      */
-    public void setFileSystemTypeLabel(String fsType)
-            throws IllegalArgumentException {
+    public void setFileSystemTypeLabel(String fsType) throws IllegalArgumentException {
 
-        if (fsType.length() != FILE_SYSTEM_TYPE_LENGTH) {
+        if(fsType.length() != FILE_SYSTEM_TYPE_LENGTH) {
             throw new IllegalArgumentException();
         }
 
-        for (int i=0; i < FILE_SYSTEM_TYPE_LENGTH; i++) {
+        for(int i = 0; i < FILE_SYSTEM_TYPE_LENGTH; i++) {
             set8(getFileSystemTypeLabelOffset() + i, fsType.charAt(i));
         }
     }
@@ -265,7 +261,7 @@ abstract class BootSector extends Sector {
      * data-caontaining portion of the file system.
      *
      * @return the number of clusters usable for user data
-     * @see #getDataSize() 
+     * @see #getDataSize()
      */
     public final long getDataClusterCount() {
         return getDataSize() / getBytesPerCluster();
@@ -277,8 +273,7 @@ abstract class BootSector extends Sector {
      * @return the number of bytes usable for storing user data
      */
     private long getDataSize() {
-        return (getSectorCount() * getBytesPerSector()) -
-                this.getFilesOffset();
+        return (getSectorCount() * getBytesPerSector()) - this.getFilesOffset();
     }
 
     /**
@@ -288,38 +283,40 @@ abstract class BootSector extends Sector {
      */
     public String getOemName() {
         StringBuilder b = new StringBuilder(8);
-        
-        for (int i = 0; i < 8; i++) {
+
+        for(int i = 0; i < 8; i++) {
             int v = get8(0x3 + i);
-            if (v == 0) break;
-            b.append((char) v);
+            if(v == 0)
+                break;
+            b.append((char)v);
         }
-        
+
         return b.toString();
     }
-
 
     /**
      * Sets the OEM name, must be at most 8 characters long.
      *
-     * @param name the new OEM name
+     * @param name
+     *            the new OEM name
      */
     public void setOemName(String name) {
-        if (name.length() > 8) throw new IllegalArgumentException(
-                "only 8 characters are allowed");
+        if(name.length() > 8)
+            throw new IllegalArgumentException("only 8 characters are allowed");
 
-        for (int i = 0; i < 8; i++) {
+        for(int i = 0; i < 8; i++) {
             char ch;
-            if (i < name.length()) {
+            if(i < name.length()) {
                 ch = name.charAt(i);
-            } else {
-                ch = (char) 0;
+            }
+            else {
+                ch = (char)0;
             }
 
             set8(0x3 + i, ch);
         }
     }
-    
+
     /**
      * Gets the number of bytes/sector
      * 
@@ -332,23 +329,28 @@ abstract class BootSector extends Sector {
     /**
      * Sets the number of bytes/sector
      * 
-     * @param v the new value for bytes per sector
+     * @param v
+     *            the new value for bytes per sector
      */
     public void setBytesPerSector(int v) {
-        if (v == getBytesPerSector()) return;
+        if(v == getBytesPerSector())
+            return;
 
-        switch (v) {
-            case 512: case 1024: case 2048: case 4096:
-                set16(0x0b, v);
-                break;
-                
-            default:
-                throw new IllegalArgumentException();
+        switch(v) {
+        case 512:
+        case 1024:
+        case 2048:
+        case 4096:
+            set16(0x0b, v);
+            break;
+
+        default:
+            throw new IllegalArgumentException();
         }
     }
 
     private static boolean isPowerOfTwo(int n) {
-        return ((n!=0) && (n&(n-1))==0);
+        return ((n != 0) && (n & (n - 1)) == 0);
     }
 
     /**
@@ -374,16 +376,18 @@ abstract class BootSector extends Sector {
     /**
      * Sets the number of sectors/cluster
      *
-     * @param v the new number of sectors per cluster
+     * @param v
+     *            the new number of sectors per cluster
      */
     public void setSectorsPerCluster(int v) {
-        if (v == getSectorsPerCluster()) return;
-        if (!isPowerOfTwo(v)) throw new IllegalArgumentException(
-                "value must be a power of two");
-        
+        if(v == getSectorsPerCluster())
+            return;
+        if(!isPowerOfTwo(v))
+            throw new IllegalArgumentException("value must be a power of two");
+
         set8(SECTORS_PER_CLUSTER_OFFSET, v);
     }
-    
+
     /**
      * Gets the number of reserved (for bootrecord) sectors
      * 
@@ -396,12 +400,14 @@ abstract class BootSector extends Sector {
     /**
      * Sets the number of reserved (for bootrecord) sectors
      * 
-     * @param v the new number of reserved sectors
+     * @param v
+     *            the new number of reserved sectors
      */
     public void setNrReservedSectors(int v) {
-        if (v == getNrReservedSectors()) return;
-        if (v < 1) throw new IllegalArgumentException(
-                "there must be >= 1 reserved sectors");
+        if(v == getNrReservedSectors())
+            return;
+        if(v < 1)
+            throw new IllegalArgumentException("there must be >= 1 reserved sectors");
         set16(RESERVED_SECTORS_OFFSET, v);
     }
 
@@ -417,14 +423,16 @@ abstract class BootSector extends Sector {
     /**
      * Sets the number of fats
      *
-     * @param v the new number of fats
+     * @param v
+     *            the new number of fats
      */
     public final void setNrFats(int v) {
-        if (v == getNrFats()) return;
-        
+        if(v == getNrFats())
+            return;
+
         set8(FAT_COUNT_OFFSET, v);
     }
-    
+
     /**
      * Gets the number of logical sectors
      * 
@@ -433,26 +441,28 @@ abstract class BootSector extends Sector {
     protected int getNrLogicalSectors() {
         return get16(TOTAL_SECTORS_16_OFFSET);
     }
-    
+
     /**
      * Sets the number of logical sectors
      * 
-     * @param v the new number of logical sectors
+     * @param v
+     *            the new number of logical sectors
      */
     protected void setNrLogicalSectors(int v) {
-        if (v == getNrLogicalSectors()) return;
-        
+        if(v == getNrLogicalSectors())
+            return;
+
         set16(TOTAL_SECTORS_16_OFFSET, v);
     }
-    
+
     protected void setNrTotalSectors(long v) {
         set32(TOTAL_SECTORS_32_OFFSET, v);
     }
-    
+
     protected long getNrTotalSectors() {
         return get32(TOTAL_SECTORS_32_OFFSET);
     }
-    
+
     /**
      * Gets the medium descriptor byte
      * 
@@ -465,12 +475,13 @@ abstract class BootSector extends Sector {
     /**
      * Sets the medium descriptor byte
      * 
-     * @param v the new medium descriptor
+     * @param v
+     *            the new medium descriptor
      */
     public void setMediumDescriptor(int v) {
         set8(0x15, v);
     }
-    
+
     /**
      * Gets the number of sectors/track
      * 
@@ -483,11 +494,13 @@ abstract class BootSector extends Sector {
     /**
      * Sets the number of sectors/track
      *
-     * @param v the new number of sectors per track
+     * @param v
+     *            the new number of sectors per track
      */
     public void setSectorsPerTrack(int v) {
-        if (v == getSectorsPerTrack()) return;
-        
+        if(v == getSectorsPerTrack())
+            return;
+
         set16(0x18, v);
     }
 
@@ -503,11 +516,13 @@ abstract class BootSector extends Sector {
     /**
      * Sets the number of heads
      * 
-     * @param v the new number of heads
+     * @param v
+     *            the new number of heads
      */
     public void setNrHeads(int v) {
-        if (v == getNrHeads()) return;
-        
+        if(v == getNrHeads())
+            return;
+
         set16(0x1a, v);
     }
 
@@ -523,14 +538,16 @@ abstract class BootSector extends Sector {
     /**
      * Sets the number of hidden sectors
      *
-     * @param v the new number of hidden sectors
+     * @param v
+     *            the new number of hidden sectors
      */
     public void setNrHiddenSectors(long v) {
-        if (v == getNrHiddenSectors()) return;
-        
+        if(v == getNrHiddenSectors())
+            return;
+
         set32(0x1c, v);
     }
-    
+
     @Override
     public String toString() {
         StringBuilder res = new StringBuilder(1024);
@@ -565,8 +582,8 @@ abstract class BootSector extends Sector {
         res.append("Nr reserved sector = ");
         res.append(getNrReservedSectors());
         res.append('\n');
-        
+
         return res.toString();
     }
-    
+
 }

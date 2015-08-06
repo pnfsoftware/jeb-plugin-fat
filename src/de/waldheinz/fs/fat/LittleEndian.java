@@ -19,7 +19,6 @@
 
 package de.waldheinz.fs.fat;
 
-
 /**
  * Little endian (LSB first) conversion methods.
  *
@@ -27,14 +26,17 @@ package de.waldheinz.fs.fat;
  */
 final class LittleEndian {
 
-    private LittleEndian() { /* no instances */ }
-    
+    private LittleEndian() { /* no instances */
+    }
+
     /**
-     * Gets an 8-bit unsigned integer from the given byte array at
-     * the given offset.
+     * Gets an 8-bit unsigned integer from the given byte array at the given
+     * offset.
      *
-     * @param src the byte offset where to read the value from
-     * @param offset the byte array to extract the value from
+     * @param src
+     *            the byte offset where to read the value from
+     * @param offset
+     *            the byte array to extract the value from
      * @return the integer that was read
      */
     public static int getUInt8(byte[] src, int offset) {
@@ -42,7 +44,8 @@ final class LittleEndian {
     }
 
     /**
-     * Gets a 16-bit unsigned integer from the given byte array at the given offset.
+     * Gets a 16-bit unsigned integer from the given byte array at the given
+     * offset.
      *
      * @param src
      * @param offset
@@ -54,7 +57,8 @@ final class LittleEndian {
     }
 
     /**
-     * Gets a 32-bit unsigned integer from the given byte array at the given offset.
+     * Gets a 32-bit unsigned integer from the given byte array at the given
+     * offset.
      *
      * @param src
      * @param offset
@@ -72,8 +76,8 @@ final class LittleEndian {
      */
     public static void setInt8(byte[] dst, int offset, int value) {
         assert (value & 0xff) == value : "value out of range";
-        
-        dst[offset] = (byte) value;
+
+        dst[offset] = (byte)value;
     }
 
     /**
@@ -81,23 +85,22 @@ final class LittleEndian {
      */
     public static void setInt16(byte[] dst, int offset, int value) {
         assert (value & 0xffff) == value : "value out of range";
-        
-        dst[offset + 0] = (byte) (value & 0xFF);
-        dst[offset + 1] = (byte) ((value >>> 8) & 0xFF);
+
+        dst[offset + 0] = (byte)(value & 0xFF);
+        dst[offset + 1] = (byte)((value >>> 8) & 0xFF);
     }
-    
+
     /**
      * Sets a 32-bit integer in the given byte array at the given offset.
      */
-    public static void setInt32(byte[] dst, int offset, long value)
-            throws IllegalArgumentException {
-        
+    public static void setInt32(byte[] dst, int offset, long value) throws IllegalArgumentException {
+
         assert value <= Integer.MAX_VALUE : "value out of range";
-        
-        dst[offset + 0] = (byte) (value & 0xFF);
-        dst[offset + 1] = (byte) ((value >>> 8) & 0xFF);
-        dst[offset + 2] = (byte) ((value >>> 16) & 0xFF);
-        dst[offset + 3] = (byte) ((value >>> 24) & 0xFF);
+
+        dst[offset + 0] = (byte)(value & 0xFF);
+        dst[offset + 1] = (byte)((value >>> 8) & 0xFF);
+        dst[offset + 2] = (byte)((value >>> 16) & 0xFF);
+        dst[offset + 3] = (byte)((value >>> 24) & 0xFF);
     }
-    
+
 }

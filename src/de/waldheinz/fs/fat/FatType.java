@@ -16,7 +16,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package de.waldheinz.fs.fat;
 
 /**
@@ -31,32 +31,34 @@ public enum FatType {
     /**
      * Represents a 12-bit file allocation table.
      */
-    FAT12((1 << 12) - 16, 0xFFFL, 1.5f, "FAT12   ") { //NOI18N
+    FAT12((1 << 12) - 16, 0xFFFL, 1.5f, "FAT12   ") { // NOI18N
 
         @Override
         long readEntry(byte[] data, int index) {
-            final int idx = (int) (index * 1.5);
+            final int idx = (int)(index * 1.5);
             final int b1 = data[idx] & 0xFF;
             final int b2 = data[idx + 1] & 0xFF;
             final int v = (b2 << 8) | b1;
-            
-            if ((index % 2) == 0) {
+
+            if((index % 2) == 0) {
                 return v & 0xFFF;
-            } else {
+            }
+            else {
                 return v >> 4;
             }
         }
 
         @Override
         void writeEntry(byte[] data, int index, long entry) {
-            final int idx = (int) (index * 1.5);
-            
-            if ((index % 2) == 0) {
-                data[idx] = (byte) (entry & 0xFF);
-                data[idx + 1] = (byte) ((entry >> 8) & 0x0F);
-            } else {
-                data[idx] |= (byte) ((entry & 0x0F) << 4);
-                data[idx + 1] = (byte) ((entry >> 4) & 0xFF);
+            final int idx = (int)(index * 1.5);
+
+            if((index % 2) == 0) {
+                data[idx] = (byte)(entry & 0xFF);
+                data[idx + 1] = (byte)((entry >> 8) & 0x0F);
+            }
+            else {
+                data[idx] |= (byte)((entry & 0x0F) << 4);
+                data[idx + 1] = (byte)((entry >> 4) & 0xFF);
             }
         }
     },
@@ -64,8 +66,8 @@ public enum FatType {
     /**
      * Represents a 16-bit file allocation table.
      */
-    FAT16((1 << 16) - 16, 0xFFFFL, 2.0f, "FAT16   ") { //NOI18N
-        
+    FAT16((1 << 16) - 16, 0xFFFFL, 2.0f, "FAT16   ") { // NOI18N
+
         @Override
         long readEntry(byte[] data, int index) {
             final int idx = index << 1;
@@ -77,15 +79,15 @@ public enum FatType {
         @Override
         void writeEntry(byte[] data, int index, long entry) {
             final int idx = index << 1;
-            data[idx] = (byte) (entry & 0xFF);
-            data[idx + 1] = (byte) ((entry >> 8) & 0xFF);
+            data[idx] = (byte)(entry & 0xFF);
+            data[idx + 1] = (byte)((entry >> 8) & 0xFF);
         }
     },
-    
+
     /**
      * Represents a 32-bit file allocation table.
      */
-    FAT32((1 << 28) - 16, 0xFFFFFFFFL, 4.0f, "FAT32   ") { //NOI18N
+    FAT32((1 << 28) - 16, 0xFFFFFFFFL, 4.0f, "FAT32   ") { // NOI18N
 
         @Override
         long readEntry(byte[] data, int index) {
@@ -100,10 +102,10 @@ public enum FatType {
         @Override
         void writeEntry(byte[] data, int index, long entry) {
             final int idx = index << 2;
-            data[idx] = (byte) (entry & 0xFF);
-            data[idx + 1] = (byte) ((entry >> 8) & 0xFF);
-            data[idx + 2] = (byte) ((entry >> 16) & 0xFF);
-            data[idx + 3] = (byte) ((entry >> 24) & 0xFF);
+            data[idx] = (byte)(entry & 0xFF);
+            data[idx + 1] = (byte)((entry >> 8) & 0xFF);
+            data[idx + 2] = (byte)((entry >> 16) & 0xFF);
+            data[idx + 3] = (byte)((entry >> 24) & 0xFF);
         }
     };
 
@@ -116,9 +118,8 @@ public enum FatType {
     private final String label;
     private final float entrySize;
 
-    private FatType(int maxClusters,
-            long bitMask, float entrySize, String label) {
-        
+    private FatType(int maxClusters, long bitMask, float entrySize, String label) {
+
         this.minReservedEntry = (0xFFFFFF0L & bitMask);
         this.maxReservedEntry = (0xFFFFFF6L & bitMask);
         this.eofCluster = (0xFFFFFF8L & bitMask);
@@ -141,7 +142,7 @@ public enum FatType {
     long maxClusters() {
         return this.maxClusters;
     }
-    
+
     /**
      * Returns the human-readable FAT name string as written to the
      * {@link BootSector}.
@@ -167,7 +168,7 @@ public enum FatType {
     float getEntrySize() {
         return entrySize;
     }
-    
+
     long getBitMask() {
         return bitMask;
     }

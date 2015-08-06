@@ -16,7 +16,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package de.waldheinz.fs.fat;
 
 import java.util.Calendar;
@@ -29,7 +29,8 @@ import java.util.Calendar;
  */
 final class DosUtils {
 
-    private DosUtils() { /* no instances */ }
+    private DosUtils() { /* no instances */
+    }
 
     /**
      * Decode a 16-bit encoded DOS date/time into a java date/time.
@@ -40,7 +41,7 @@ final class DosUtils {
      */
     public static long decodeDateTime(int dosDate, int dosTime) {
         final Calendar cal = Calendar.getInstance();
-        
+
         cal.set(Calendar.MILLISECOND, 0);
         cal.set(Calendar.SECOND, (dosTime & 0x1f) * 2);
         cal.set(Calendar.MINUTE, (dosTime >> 5) & 0x3f);
@@ -49,7 +50,7 @@ final class DosUtils {
         cal.set(Calendar.DATE, dosDate & 0x1f);
         cal.set(Calendar.MONTH, ((dosDate >> 5) & 0x0f) - 1);
         cal.set(Calendar.YEAR, 1980 + (dosDate >> 9));
-        
+
         return cal.getTimeInMillis();
     }
 
@@ -62,8 +63,7 @@ final class DosUtils {
     public static int encodeTime(long javaDateTime) {
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(javaDateTime);
-        return 2048 * cal.get(Calendar.HOUR_OF_DAY) + 32 * cal.get(Calendar.MINUTE) +
-                cal.get(Calendar.SECOND) / 2;
+        return 2048 * cal.get(Calendar.HOUR_OF_DAY) + 32 * cal.get(Calendar.MINUTE) + cal.get(Calendar.SECOND) / 2;
     }
 
     /**
@@ -75,7 +75,6 @@ final class DosUtils {
     public static int encodeDate(long javaDateTime) {
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(javaDateTime);
-        return 512 * (cal.get(Calendar.YEAR) - 1980) + 32 * (cal.get(Calendar.MONTH) + 1) +
-                cal.get(Calendar.DATE);
+        return 512 * (cal.get(Calendar.YEAR) - 1980) + 32 * (cal.get(Calendar.MONTH) + 1) + cal.get(Calendar.DATE);
     }
 }

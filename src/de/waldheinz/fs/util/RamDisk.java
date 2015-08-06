@@ -38,18 +38,18 @@ import java.util.zip.GZIPInputStream;
 import de.waldheinz.fs.BlockDevice;
 
 /**
- * A {@link BlockDevice} that lives entirely in heap memory. This is basically
- * a RAM disk. A {@code RamDisk} is always writable.
+ * A {@link BlockDevice} that lives entirely in heap memory. This is basically a
+ * RAM disk. A {@code RamDisk} is always writable.
  *
  * @author Matthias Treydte &lt;waldheinz at gmail.com&gt;
  */
 public final class RamDisk implements BlockDevice {
-    
+
     /**
      * The default sector size for {@code RamDisk}s.
      */
     public final static int DEFAULT_SECTOR_SIZE = 512;
-    
+
     private final int sectorSize;
     private final ByteBuffer data;
     private final int size;
@@ -59,57 +59,62 @@ public final class RamDisk implements BlockDevice {
      * Reads a GZIP compressed disk image from the specified input stream and
      * returns a {@code RamDisk} holding the decompressed image.
      *
-     * @param in the stream to read the disk image from
+     * @param in
+     *            the stream to read the disk image from
      * @return the decompressed {@code RamDisk}
-     * @throws IOException on read or decompression error
+     * @throws IOException
+     *             on read or decompression error
      */
     public static RamDisk readGzipped(InputStream in) throws IOException {
         final GZIPInputStream zis = new GZIPInputStream(in);
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        
+
         final byte[] buffer = new byte[4096];
-        
+
         int read = zis.read(buffer);
         int total = 0;
-        
-        while (read >= 0) {
+
+        while(read >= 0) {
             total += read;
             bos.write(buffer, 0, read);
             read = zis.read(buffer);
         }
 
-        if (total < DEFAULT_SECTOR_SIZE) throw new IOException(
-                "read only " + total + " bytes"); //NOI18N
-                
+        if(total < DEFAULT_SECTOR_SIZE)
+            throw new IOException("read only " + total + " bytes"); // NOI18N
+
         final ByteBuffer bb = ByteBuffer.wrap(bos.toByteArray(), 0, total);
         return new RamDisk(bb, DEFAULT_SECTOR_SIZE);
     }
-    
+
     /**
      * Reads a GZIP compressed file into a new {@code RamDisk} instance.
      * 
-     * @param f the file to read
+     * @param f
+     *            the file to read
      * @return the new RamDisk with the file contents
-     * @throws FileNotFoundException if the specified file does not exist
-     * @throws IOException on read error
+     * @throws FileNotFoundException
+     *             if the specified file does not exist
+     * @throws IOException
+     *             on read error
      */
-    public static RamDisk readGzipped(File f)
-            throws FileNotFoundException, IOException {
-        
+    public static RamDisk readGzipped(File f) throws FileNotFoundException, IOException {
+
         final FileInputStream is = new FileInputStream(f);
-        
+
         try {
             return readGzipped(is);
-        } finally {
+        }
+        finally {
             is.close();
         }
     }
-    
-    public static RamDisk read(byte[] bytes){
-    	final ByteBuffer bb = ByteBuffer.wrap(bytes);
-    	return new RamDisk(bb, DEFAULT_SECTOR_SIZE);
+
+    public static RamDisk read(byte[] bytes) {
+        final ByteBuffer bb = ByteBuffer.wrap(bytes);
+        return new RamDisk(bb, DEFAULT_SECTOR_SIZE);
     }
-    
+
     private RamDisk(ByteBuffer buffer, int sectorSize) {
         this.size = buffer.limit();
         this.sectorSize = sectorSize;
@@ -118,31 +123,34 @@ public final class RamDisk implements BlockDevice {
     }
 
     /**
-     * Creates a new instance of {@code RamDisk} of this specified
-     * size and using the {@link #DEFAULT_SECTOR_SIZE}.
+     * Creates a new instance of {@code RamDisk} of this specified size and
+     * using the {@link #DEFAULT_SECTOR_SIZE}.
      *
-     * @param size the size of the new block device
+     * @param size
+     *            the size of the new block device
      */
     public RamDisk(int size) {
         this(size, DEFAULT_SECTOR_SIZE);
     }
 
     /**
-     * Creates a new instance of {@code RamDisk} of this specified
-     * size and sector size
+     * Creates a new instance of {@code RamDisk} of this specified size and
+     * sector size
      *
-     * @param size the size of the new block device
-     * @param sectorSize the sector size of the new block device
+     * @param size
+     *            the size of the new block device
+     * @param sectorSize
+     *            the sector size of the new block device
      */
     public RamDisk(int size, int sectorSize) {
-        if (sectorSize < 1) throw new IllegalArgumentException(
-                "invalid sector size"); //NOI18N
-        
+        if(sectorSize < 1)
+            throw new IllegalArgumentException("invalid sector size"); // NOI18N
+
         this.sectorSize = sectorSize;
         this.size = size;
         this.data = ByteBuffer.allocate(size);
     }
-    
+
     @Override
     public long getSize() {
         checkClosed();
@@ -152,35 +160,33 @@ public final class RamDisk implements BlockDevice {
     @Override
     public void read(long devOffset, ByteBuffer dest) throws IOException {
         checkClosed();
-        if (devOffset > getSize()) throw new IllegalArgumentException();
-        
-        data.limit((int) (devOffset + dest.remaining()));
-        data.position((int) devOffset);
-        
+        if(devOffset > getSize())
+            throw new IllegalArgumentException();
+
+        data.limit((int)(devOffset + dest.remaining()));
+        data.position((int)devOffset);
+
         dest.put(data);
     }
 
     @Override
     public void write(long devOffset, ByteBuffer src) throws IOException {
         checkClosed();
-        
-        if (devOffset + src.remaining() > getSize()) throw new
-                IllegalArgumentException(
-                "offset=" + devOffset +
-                ", length=" + src.remaining() +
-                ", size=" + getSize());
-                
-        data.limit((int) (devOffset + src.remaining()));
-        data.position((int) devOffset);
-        
-        
+
+        if(devOffset + src.remaining() > getSize())
+            throw new IllegalArgumentException("offset=" + devOffset + ", length=" + src.remaining() + ", size="
+                    + getSize());
+
+        data.limit((int)(devOffset + src.remaining()));
+        data.position((int)devOffset);
+
         data.put(src);
     }
-    
+
     /**
      * Returns a slice of the {@code ByteBuffer} that is used by this
-     * {@code RamDisk} as it's backing store. The returned buffer will be
-     * live (reflecting any changes made through the
+     * {@code RamDisk} as it's backing store. The returned buffer will be live
+     * (reflecting any changes made through the
      * {@link #write(long, java.nio.ByteBuffer) method}, but read-only.
      *
      * @return a buffer holding the contents of this {@code RamDisk}
@@ -188,12 +194,12 @@ public final class RamDisk implements BlockDevice {
     public ByteBuffer getBuffer() {
         return this.data.asReadOnlyBuffer();
     }
-    
+
     @Override
     public void flush() throws IOException {
         checkClosed();
     }
-    
+
     @Override
     public int getSectorSize() {
         checkClosed();
@@ -211,7 +217,8 @@ public final class RamDisk implements BlockDevice {
     }
 
     private void checkClosed() {
-        if (closed) throw new IllegalStateException("device already closed");
+        if(closed)
+            throw new IllegalStateException("device already closed");
     }
 
     /**
@@ -222,8 +229,8 @@ public final class RamDisk implements BlockDevice {
     @Override
     public boolean isReadOnly() {
         checkClosed();
-        
+
         return false;
     }
-    
+
 }

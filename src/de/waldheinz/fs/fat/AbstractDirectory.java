@@ -16,7 +16,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package de.waldheinz.fs.fat;
 
 import java.io.IOException;
@@ -36,31 +36,33 @@ abstract class AbstractDirectory {
     /**
      * The maximum length of the volume label.
      *
-     * @see #setLabel(java.lang.String) 
+     * @see #setLabel(java.lang.String)
      */
     public static final int MAX_LABEL_LENGTH = 11;
-    
+
     private final List<FatDirectoryEntry> entries;
     private final boolean readOnly;
     private final boolean isRoot;
     private final FatType type;
-    
+
     @SuppressWarnings("unused")
-	private boolean dirty;
+    private boolean dirty;
     private int capacity;
     private String volumeLabel;
 
     /**
      * Creates a new instance of {@code AbstractDirectory}.
      *
-     * @param capacity the initial capacity of the new instance
-     * @param readOnly if the instance should be read-only
-     * @param isRoot if the new {@code AbstractDirectory} represents a root
-     *      directory
+     * @param capacity
+     *            the initial capacity of the new instance
+     * @param readOnly
+     *            if the instance should be read-only
+     * @param isRoot
+     *            if the new {@code AbstractDirectory} represents a root
+     *            directory
      */
-    protected AbstractDirectory(FatType type,
-            int capacity, boolean readOnly, boolean isRoot) {
-        
+    protected AbstractDirectory(FatType type, int capacity, boolean readOnly, boolean isRoot) {
+
         this.entries = new ArrayList<FatDirectoryEntry>();
         this.type = type;
         this.capacity = capacity;
@@ -69,13 +71,15 @@ abstract class AbstractDirectory {
     }
 
     /**
-     * Gets called when the {@code AbstractDirectory} must read it's content
-     * off the backing storage. This method must always fill the buffer's
-     * remaining space with the bytes making up this directory, beginning with
-     * the first byte.
+     * Gets called when the {@code AbstractDirectory} must read it's content off
+     * the backing storage. This method must always fill the buffer's remaining
+     * space with the bytes making up this directory, beginning with the first
+     * byte.
      *
-     * @param data the {@code ByteBuffer} to fill
-     * @throws IOException on read error
+     * @param data
+     *            the {@code ByteBuffer} to fill
+     * @throws IOException
+     *             on read error
      */
     protected abstract void read(ByteBuffer data) throws IOException;
 
@@ -84,15 +88,17 @@ abstract class AbstractDirectory {
      * contents to the backing storage. This method is expected to write the
      * buffer's remaining data to the storage, beginning with the first byte.
      *
-     * @param data the {@code ByteBuffer} to write
-     * @throws IOException on write error
+     * @param data
+     *            the {@code ByteBuffer} to write
+     * @throws IOException
+     *             on write error
      */
     protected abstract void write(ByteBuffer data) throws IOException;
 
     /**
-     * Returns the number of the cluster where this directory is stored. This
-     * is important when creating the ".." entry in a sub-directory, as this
-     * entry must poing to the storage cluster of it's parent.
+     * Returns the number of the cluster where this directory is stored. This is
+     * important when creating the ".." entry in a sub-directory, as this entry
+     * must poing to the storage cluster of it's parent.
      *
      * @return this directory's storage cluster
      */
@@ -102,51 +108,55 @@ abstract class AbstractDirectory {
      * Gets called by the {@code AbstractDirectory} when it has determined that
      * it should resize because the number of entries has changed.
      *
-     * @param entryCount the new number of entries this directory needs to store
-     * @throws IOException on write error
-     * @throws DirectoryFullException if the FAT12/16 root directory is full
+     * @param entryCount
+     *            the new number of entries this directory needs to store
+     * @throws IOException
+     *             on write error
+     * @throws DirectoryFullException
+     *             if the FAT12/16 root directory is full
      * @see #sizeChanged(long)
-     * @see #checkEntryCount(int) 
+     * @see #checkEntryCount(int)
      */
-    protected abstract void changeSize(int entryCount)
-            throws DirectoryFullException, IOException;
-            
+    protected abstract void changeSize(int entryCount) throws DirectoryFullException, IOException;
+
     /**
      * Replaces all entries in this directory.
      *
-     * @param newEntries the new directory entries
+     * @param newEntries
+     *            the new directory entries
      */
     public void setEntries(List<FatDirectoryEntry> newEntries) {
-        if (newEntries.size() > capacity)
+        if(newEntries.size() > capacity)
             throw new IllegalArgumentException("too many entries");
-        
+
         this.entries.clear();
         this.entries.addAll(newEntries);
     }
-    
+
     /**
      * 
      *
-     * @param newSize the new storage space for the directory in bytes
-     * @see #changeSize(int) 
+     * @param newSize
+     *            the new storage space for the directory in bytes
+     * @see #changeSize(int)
      */
     protected final void sizeChanged(long newSize) throws IOException {
         final long newCount = newSize / FatDirectoryEntry.SIZE;
-        if (newCount > Integer.MAX_VALUE)
+        if(newCount > Integer.MAX_VALUE)
             throw new IOException("directory too large");
-        
-        this.capacity = (int) newCount;
+
+        this.capacity = (int)newCount;
     }
 
     public final FatDirectoryEntry getEntry(int idx) {
         return this.entries.get(idx);
     }
-    
+
     /**
      * Returns the current capacity of this {@code AbstractDirectory}.
      *
      * @return the number of entries this directory can hold in its current
-     *      storage space
+     *         storage space
      * @see #changeSize(int)
      */
     public final int getCapacity() {
@@ -162,7 +172,7 @@ abstract class AbstractDirectory {
     public final int getEntryCount() {
         return this.entries.size();
     }
-    
+
     public boolean isReadOnly() {
         return readOnly;
     }
@@ -170,18 +180,18 @@ abstract class AbstractDirectory {
     public final boolean isRoot() {
         return this.isRoot;
     }
-    
+
     /**
      * Gets the number of directory entries in this directory. This is the
-     * number of "real" entries in this directory, possibly plus one if a
-     * volume label is set.
+     * number of "real" entries in this directory, possibly plus one if a volume
+     * label is set.
      * 
      * @return the number of entries in this directory
      */
     public int getSize() {
         return entries.size() + ((this.volumeLabel != null) ? 1 : 0);
     }
-    
+
     /**
      * Mark this directory as dirty.
      */
@@ -192,105 +202,102 @@ abstract class AbstractDirectory {
     /**
      * Checks if this {@code AbstractDirectory} is a root directory.
      *
-     * @throws UnsupportedOperationException if this is not a root directory
-     * @see #isRoot() 
+     * @throws UnsupportedOperationException
+     *             if this is not a root directory
+     * @see #isRoot()
      */
     private void checkRoot() throws UnsupportedOperationException {
-        if (!isRoot()) {
-            throw new UnsupportedOperationException(
-                    "only supported on root directories");
+        if(!isRoot()) {
+            throw new UnsupportedOperationException("only supported on root directories");
         }
     }
-    
+
     /**
      * Mark this directory as not dirty.
      */
     private void resetDirty() {
         this.dirty = false;
     }
-    
+
     /**
      * Flush the contents of this directory to the persistent storage
      */
     public void flush() throws IOException {
-        
-        final ByteBuffer data = ByteBuffer.allocate(
-                getCapacity() * FatDirectoryEntry.SIZE);
-        
-        for (int i=0; i < entries.size(); i++) {
+
+        final ByteBuffer data = ByteBuffer.allocate(getCapacity() * FatDirectoryEntry.SIZE);
+
+        for(int i = 0; i < entries.size(); i++) {
             final FatDirectoryEntry entry = entries.get(i);
-            
-            if (entry != null) {
+
+            if(entry != null) {
                 entry.write(data);
             }
         }
-        
+
         /* TODO: the label could be placed directly the dot entries */
-        
-        if (this.volumeLabel != null) {
-            final FatDirectoryEntry labelEntry =
-                    FatDirectoryEntry.createVolumeLabel(type, volumeLabel);
+
+        if(this.volumeLabel != null) {
+            final FatDirectoryEntry labelEntry = FatDirectoryEntry.createVolumeLabel(type, volumeLabel);
 
             labelEntry.write(data);
         }
-        
-        if (data.hasRemaining()) {
+
+        if(data.hasRemaining()) {
             FatDirectoryEntry.writeNullEntry(data);
         }
 
         data.flip();
-        
+
         write(data);
         resetDirty();
     }
-    
+
     protected final void read() throws IOException {
-        final ByteBuffer data = ByteBuffer.allocate(
-                getCapacity() * FatDirectoryEntry.SIZE);
-                
+        final ByteBuffer data = ByteBuffer.allocate(getCapacity() * FatDirectoryEntry.SIZE);
+
         read(data);
         data.flip();
-        
-        for (int i=0; i < getCapacity(); i++) {
-            final FatDirectoryEntry e =
-                    FatDirectoryEntry.read(type, data, isReadOnly());
-            
-            if (e == null) break;
-            
-            if (e.isVolumeLabel()) {
-                if (!this.isRoot) throw new IOException(
-                        "volume label in non-root directory");
-                
+
+        for(int i = 0; i < getCapacity(); i++) {
+            final FatDirectoryEntry e = FatDirectoryEntry.read(type, data, isReadOnly());
+
+            if(e == null)
+                break;
+
+            if(e.isVolumeLabel()) {
+                if(!this.isRoot)
+                    throw new IOException("volume label in non-root directory");
+
                 this.volumeLabel = e.getVolumeLabel();
-            } else {
+            }
+            else {
                 entries.add(e);
             }
         }
     }
-    
+
     public void addEntry(FatDirectoryEntry e) throws IOException {
         assert (e != null);
-        
-        if (getSize() == getCapacity()) {
+
+        if(getSize() == getCapacity()) {
             changeSize(getCapacity() + 1);
         }
 
         entries.add(e);
     }
-    
-    public void addEntries(FatDirectoryEntry[] entries)
-            throws IOException {
-        
-        if (getSize() + entries.length > getCapacity()) {
+
+    public void addEntries(FatDirectoryEntry[] entries) throws IOException {
+
+        if(getSize() + entries.length > getCapacity()) {
             changeSize(getSize() + entries.length);
         }
 
         this.entries.addAll(Arrays.asList(entries));
     }
-    
+
     public void removeEntry(FatDirectoryEntry entry) throws IOException {
         assert (entry != null);
-        
+
         this.entries.remove(entry);
         changeSize(getSize());
     }
@@ -300,12 +307,13 @@ abstract class AbstractDirectory {
      * volume label is only supported for the root directory.
      *
      * @return the volume label stored in this directory, or {@code null}
-     * @throws UnsupportedOperationException if this is not a root directory
-     * @see #isRoot() 
+     * @throws UnsupportedOperationException
+     *             if this is not a root directory
+     * @see #isRoot()
      */
     public String getLabel() throws UnsupportedOperationException {
         checkRoot();
-        
+
         return volumeLabel;
     }
 
@@ -315,9 +323,8 @@ abstract class AbstractDirectory {
 
         final FatDirectoryEntry entry = FatDirectoryEntry.create(type, true);
         entry.setStartCluster(chain.getStartCluster());
-        
-        final ClusterChainDirectory dir =
-                new ClusterChainDirectory(chain, false);
+
+        final ClusterChainDirectory dir = new ClusterChainDirectory(chain, false);
 
         /* add "." entry */
 
@@ -339,10 +346,9 @@ abstract class AbstractDirectory {
 
         return entry;
     }
-    
-    private static void copyDateTimeFields(
-            FatDirectoryEntry src, FatDirectoryEntry dst) {
-        
+
+    private static void copyDateTimeFields(FatDirectoryEntry src, FatDirectoryEntry dst) {
+
         dst.setCreated(src.getCreated());
         dst.setLastAccessed(src.getLastAccessed());
         dst.setLastModified(src.getLastModified());
@@ -352,36 +358,40 @@ abstract class AbstractDirectory {
      * Sets the volume label that is stored in this directory. Setting the
      * volume label is supported on the root directory only.
      *
-     * @param label the new volume label
-     * @throws IllegalArgumentException if the label is too long
-     * @throws UnsupportedOperationException if this is not a root directory
-     * @see #isRoot() 
+     * @param label
+     *            the new volume label
+     * @throws IllegalArgumentException
+     *             if the label is too long
+     * @throws UnsupportedOperationException
+     *             if this is not a root directory
+     * @see #isRoot()
      */
-    public void setLabel(String label) throws IllegalArgumentException,
-            UnsupportedOperationException, IOException {
+    public void setLabel(String label) throws IllegalArgumentException, UnsupportedOperationException, IOException {
 
         checkRoot();
 
-        if (label != null && label.length() > MAX_LABEL_LENGTH) throw new
-                IllegalArgumentException("label too long");
+        if(label != null && label.length() > MAX_LABEL_LENGTH)
+            throw new IllegalArgumentException("label too long");
 
-        if (this.volumeLabel != null) {
-            if (label == null) {
+        if(this.volumeLabel != null) {
+            if(label == null) {
                 changeSize(getSize() - 1);
                 this.volumeLabel = null;
-            } else {
+            }
+            else {
                 ShortName.checkValidChars(label.getBytes(ShortName.ASCII));
                 this.volumeLabel = label;
             }
-        } else {
-            if (label != null) {
+        }
+        else {
+            if(label != null) {
                 changeSize(getSize() + 1);
                 ShortName.checkValidChars(label.getBytes(ShortName.ASCII));
                 this.volumeLabel = label;
             }
         }
-        
+
         this.dirty = true;
     }
-    
+
 }
