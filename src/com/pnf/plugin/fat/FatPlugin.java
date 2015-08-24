@@ -55,7 +55,7 @@ public class FatPlugin extends AbstractUnitIdentifier {
             ch.read(buff);
             isObb = checkBytes(buff, 0, OBB_SIG);
         }
-        catch(IOException e) {
+        catch(IOException|IllegalArgumentException e) {
             isObb = false;
         }
 
