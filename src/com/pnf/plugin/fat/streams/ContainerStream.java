@@ -27,14 +27,10 @@ public class ContainerStream extends Stream {
     /**
      * Creates a new {@code ContainerStream} object
      * 
-     * @param parent
-     *            the parent {@code ContainerStream} to associate this stream
-     *            with
-     * @param rawName
-     *            the name of this stream
-     * @param readError
-     *            a flag indicating whether an I/O error occurred while
-     *            attempting to read this stream
+     * @param parent the parent {@code ContainerStream} to associate this stream with
+     * @param rawName the name of this stream
+     * @param readError a flag indicating whether an I/O error occurred while attempting to read
+     *            this stream
      */
     public ContainerStream(ContainerStream parent, String rawName, boolean readError) {
         super(parent, rawName, readError);
@@ -79,11 +75,11 @@ public class ContainerStream extends Stream {
         StringBuffer buff = new StringBuffer();
         buff.append(tab + getRawName() + nl);
 
-        for(Stream s : containerStreams) {
+        for(Stream s: containerStreams) {
             buff.append(tab + s.toString(tabs + 1) + nl);
         }
 
-        for(Stream s : documentStreams)
+        for(Stream s: documentStreams)
             buff.append(tab + s.toString(tabs + 1) + nl);
 
         buff.setCharAt(buff.length() - 1, '\0');

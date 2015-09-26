@@ -32,17 +32,10 @@ public class DocumentStream extends Stream {
     /**
      * Creates a new {@code DocumentStream} associated with the given byte data
      * 
-     * @param parent
-     *            parent {@code ContainerStream} to associate this
-     *            {@code Stream} with
-     * @param rawName
-     *            the name of this stream
-     * @param buff
-     *            a {@code ByteBuffer} containing all data associated with this
-     *            stream
-     * @param readError
-     *            a flag indicating whether an I/O error occurred during read
-     *            operations
+     * @param parent parent {@code ContainerStream} to associate this {@code Stream} with
+     * @param rawName the name of this stream
+     * @param buff a {@code ByteBuffer} containing all data associated with this stream
+     * @param readError a flag indicating whether an I/O error occurred during read operations
      */
     public DocumentStream(ContainerStream parent, String rawName, ByteBuffer buff, boolean readError) {
         super(parent, rawName, readError);
@@ -52,8 +45,7 @@ public class DocumentStream extends Stream {
     /**
      * Retrieves the data associated with this stream
      * 
-     * @return a {@code ByteBuffer} containing the data stored within this
-     *         stream
+     * @return a {@code ByteBuffer} containing the data stored within this stream
      */
     public ByteBuffer getBuffer() {
         return buff;
@@ -83,8 +75,7 @@ public class DocumentStream extends Stream {
     /**
      * Sets the current processed state of this stream
      * 
-     * @param isProcessed
-     *            the new processed state of this stream
+     * @param isProcessed the new processed state of this stream
      */
     public void setProcessed(boolean isProcessed) {
         processed = isProcessed;

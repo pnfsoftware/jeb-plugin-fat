@@ -24,8 +24,8 @@ import com.pnf.plugin.fat.MessageHandler;
 import com.pnfsoftware.jeb.core.units.UnitNotification;
 
 /**
- * An abstraction of a storage stream. Can be a document containing data, or
- * simply a container for other {@code Stream}s.
+ * An abstraction of a storage stream. Can be a document containing data, or simply a container for
+ * other {@code Stream}s.
  * 
  * @author carlos
  *
@@ -38,13 +38,10 @@ public abstract class Stream implements MessageHandler {
     /**
      * Creates a new {@code Stream} object
      * 
-     * @param parent
-     *            the {@code ContainerStream} that this object is nested under
-     * @param rawName
-     *            the raw name of this stream
-     * @param readError
-     *            flag indicating whether an I/O error occurred while attempting
-     *            to read this stream's data
+     * @param parent the {@code ContainerStream} that this object is nested under
+     * @param rawName the raw name of this stream
+     * @param readError flag indicating whether an I/O error occurred while attempting to read this
+     *            stream's data
      */
     public Stream(ContainerStream parent, String rawName, boolean readError) {
         this.rawName = rawName;
@@ -58,11 +55,9 @@ public abstract class Stream implements MessageHandler {
     }
 
     /**
-     * Whether there was an I/O error while reading this stream's contents or
-     * not
+     * Whether there was an I/O error while reading this stream's contents or not
      * 
-     * @return true if an I/O error occurred during read operations, false
-     *         otherwise
+     * @return true if an I/O error occurred during read operations, false otherwise
      */
     public boolean hadReadError() {
         return readError;
@@ -104,8 +99,7 @@ public abstract class Stream implements MessageHandler {
     public abstract String toString();
 
     /**
-     * Returns a String representation of this object, prepended with the given
-     * number of tabs
+     * Returns a String representation of this object, prepended with the given number of tabs
      * 
      * @param tabs
      * @return
@@ -122,8 +116,7 @@ public abstract class Stream implements MessageHandler {
     /**
      * Adds a child {@code Stream} to the current object
      * 
-     * @param e
-     *            the child {@code Stream} to add
+     * @param e the child {@code Stream} to add
      */
     public abstract void addChild(Stream e);
 }

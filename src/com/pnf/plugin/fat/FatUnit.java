@@ -93,12 +93,12 @@ public class FatUnit extends AbstractBinaryUnit {
 
         // Traverse deeper into ContainerStream hierarchy and add ContainerUnits
         // as we go
-        for(ContainerStream c : current.getContainerStreams()) {
+        for(ContainerStream c: current.getContainerStreams()) {
             currentUnit.addChildUnit(getContainerFor(c, currentUnit));
         }
 
         // Add units for any DocumentStreams present at this level
-        for(DocumentStream d : current.getDocumentStreams()) {
+        for(DocumentStream d: current.getDocumentStreams()) {
             currentUnit.addChildUnit(getUnitProcessor().process(d.getRawName(), new BytesInput(d.getBuffer().array()),
                     currentUnit));
         }

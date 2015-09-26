@@ -38,12 +38,11 @@ public class FatProcessor {
      * Creates a new {@code FatCore} object from the given byte stream.
      * 
      * <p>
-     * <i>Note: Calling this constructor <b>will not</b> extract any files from
-     * the image bytes. For extracting the files, see {@link dumpFiles}.</i>
+     * <i>Note: Calling this constructor <b>will not</b> extract any files from the image bytes. For
+     * extracting the files, see {@link dumpFiles}.</i>
      * </p>
      * 
-     * @param stream
-     *            byte array representation of a FAT image
+     * @param stream byte array representation of a FAT image
      * @throws IOException
      */
     public FatProcessor(String name, byte[] stream) {
@@ -71,7 +70,7 @@ public class FatProcessor {
     private void addAll(ContainerStream parentDir, FsDirectory fatDir) {
         // Iterate through all entries in the current fs directory
         boolean readError = false;
-        for(FsDirectoryEntry e : fatDir) {
+        for(FsDirectoryEntry e: fatDir) {
             // If it's a directory, recurse deeper
             if(e.isDirectory()) {
                 // Recurse and parse files within the current directory
@@ -126,8 +125,7 @@ public class FatProcessor {
     }
 
     /**
-     * Retrieve a {@code String} representation of the filesystem type this
-     * image represents.
+     * Retrieve a {@code String} representation of the filesystem type this image represents.
      * 
      * @return a {@code String} representation of this image's filesystem type
      */
