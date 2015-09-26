@@ -20,6 +20,7 @@ package de.waldheinz.fs.util;
 
 import de.waldheinz.fs.BlockDevice;
 import de.waldheinz.fs.ReadOnlyException;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -87,6 +88,7 @@ public final class FileDisk implements BlockDevice {
      * @throws IOException
      *             on error creating the {@code FileDisk}
      */
+    @SuppressWarnings("resource")
     public static FileDisk create(File file, long size) throws IOException {
         try {
             final RandomAccessFile raf = new RandomAccessFile(file, "rw"); // NOI18N

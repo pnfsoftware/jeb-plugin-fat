@@ -19,6 +19,7 @@
 package de.waldheinz.fs.fat;
 
 import de.waldheinz.fs.BlockDevice;
+
 import java.io.IOException;
 import java.util.Random;
 
@@ -329,6 +330,7 @@ public final class SuperFloppyFormatter {
      * @throws IllegalArgumentException
      *             if {@code fatType} does not support the size of the device
      */
+    @SuppressWarnings("incomplete-switch")
     public SuperFloppyFormatter setFatType(FatType fatType) throws IOException, IllegalArgumentException {
 
         if(fatType == null)

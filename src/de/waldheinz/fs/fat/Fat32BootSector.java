@@ -19,6 +19,7 @@
 package de.waldheinz.fs.fat;
 
 import de.waldheinz.fs.BlockDevice;
+
 import java.io.IOException;
 
 /**
@@ -54,6 +55,7 @@ final class Fat32BootSector extends BootSector {
     /*
      * TODO: make this constructor private
      */
+    @SuppressWarnings("unused")
     public Fat32BootSector(BlockDevice device) throws IOException {
         super(device);
     }

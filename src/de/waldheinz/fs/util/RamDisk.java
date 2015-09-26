@@ -100,6 +100,7 @@ public final class RamDisk implements BlockDevice {
      */
     public static RamDisk readGzipped(File f) throws FileNotFoundException, IOException {
 
+        @SuppressWarnings("resource")
         final FileInputStream is = new FileInputStream(f);
 
         try {
