@@ -23,8 +23,6 @@ import java.io.InputStream;
 import com.pnf.plugin.fat.streams.ContainerStream;
 import com.pnf.plugin.fat.streams.DocumentStream;
 import com.pnfsoftware.jeb.core.IUnitCreator;
-import com.pnfsoftware.jeb.core.events.J;
-import com.pnfsoftware.jeb.core.events.JebEvent;
 import com.pnfsoftware.jeb.core.input.BytesInput;
 import com.pnfsoftware.jeb.core.input.IInput;
 import com.pnfsoftware.jeb.core.properties.IPropertyDefinitionManager;
@@ -55,6 +53,10 @@ public class FatUnit extends AbstractBinaryUnit {
     }
 
     public boolean process() {
+        if(isProcessed()) {
+            return true;
+        }
+
         // Read the entire image into memory
         byte[] bytes = null;
         try(InputStream stream = getInput().getStream()) {
@@ -80,9 +82,7 @@ public class FatUnit extends AbstractBinaryUnit {
         IUnit root = getContainerFor(core.getRootStream(), this);
         addChildUnit(root);
 
-        // Throw unit change event
-        notifyListeners(new JebEvent(J.UnitChange));
-
+        setProcessed(true);
         return true;
     }
 

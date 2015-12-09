@@ -25,7 +25,6 @@ import com.pnfsoftware.jeb.core.IUnitCreator;
 import com.pnfsoftware.jeb.core.PluginInformation;
 import com.pnfsoftware.jeb.core.Version;
 import com.pnfsoftware.jeb.core.input.IInput;
-import com.pnfsoftware.jeb.core.properties.IPropertyDefinitionManager;
 import com.pnfsoftware.jeb.core.units.AbstractUnitIdentifier;
 import com.pnfsoftware.jeb.core.units.IUnit;
 import com.pnfsoftware.jeb.core.units.IUnitProcessor;
@@ -44,28 +43,34 @@ public class FatPlugin extends AbstractUnitIdentifier {
         super(ID, 0);
     }
 
-    public boolean canIdentify(IInput stream, IUnitCreator unit) {
+    @Override
+    public PluginInformation getPluginInformation() {
+        // requires JEB 2.1
+        return new PluginInformation("FAT Plugin", "Parser for FAT filesystem images", "PNF Software", Version.create(
+                1, 0, 1), Version.create(2, 1), null);
+    }
+
+    public boolean canIdentify(IInput input, IUnitCreator unit) {
+        if(input == null) {
+            return false;
+        }
+
         // First check to make sure that we are not parsing an OBB file (FAT
         // image with OBB footer)
         boolean isObb = true;
 
-        try(SeekableByteChannel ch = stream.getChannel()) {
+        try(SeekableByteChannel ch = input.getChannel()) {
             ch.position(ch.size() - OBB_SIG.length);
             ByteBuffer buff = ByteBuffer.allocate(OBB_SIG.length);
             ch.read(buff);
-            isObb = checkBytes(buff, 0, OBB_SIG);
+            isObb = checkBytes(buff.array(), 0, OBB_SIG);
         }
         catch(IOException | IllegalArgumentException e) {
             isObb = false;
         }
 
         // Then check for FAT boot sector signature
-        return !isObb && checkBytes(stream, FAT_BOOT_SIG_OFFSET, FAT_BOOT_SIG);
-    }
-
-    public void initialize(IPropertyDefinitionManager parent) {
-        super.initialize(parent);
-        /** Add any necessary property definitions here **/
+        return !isObb && checkBytes(input, FAT_BOOT_SIG_OFFSET, FAT_BOOT_SIG);
     }
 
     @Override
@@ -73,11 +78,5 @@ public class FatPlugin extends AbstractUnitIdentifier {
         IUnit fatUnit = new FatUnit(name, data, processor, unit, getPropertyDefinitionManager());
         fatUnit.process();
         return fatUnit;
-    }
-
-    @Override
-    public PluginInformation getPluginInformation() {
-        return new PluginInformation("FAT Plugin", "Parser for FAT filesystem images", "PNF Software", new Version(1,
-                0, 0));
     }
 }
