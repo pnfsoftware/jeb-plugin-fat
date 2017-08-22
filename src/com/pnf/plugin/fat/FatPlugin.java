@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 PNF Software, Inc.
+ * Copyright (c) 2015-2017 PNF Software, Inc.
  *
  *     https://www.pnfsoftware.com
  *
@@ -33,6 +33,7 @@ import com.pnfsoftware.jeb.util.logging.ILogger;
 
 public class FatPlugin extends AbstractUnitIdentifier {
     static final String ID = "fat";
+
     private static final int[] FAT_BOOT_SIG = {(byte)0x55, (byte)0xAA};
     private static final int FAT_BOOT_SIG_OFFSET = 0x200 - FAT_BOOT_SIG.length;
     private static final int[] OBB_SIG = {(byte)0x83, (byte)0x99, (byte)0x05, (byte)0x01};
@@ -45,9 +46,8 @@ public class FatPlugin extends AbstractUnitIdentifier {
 
     @Override
     public PluginInformation getPluginInformation() {
-        // requires JEB 2.1
         return new PluginInformation("FAT Plugin", "Parser for FAT filesystem images", "PNF Software", Version.create(
-                1, 0, 1), Version.create(2, 1), null);
+                1, 0, 2), Version.create(2, 3, 3), null);
     }
 
     public boolean canIdentify(IInput input, IUnitCreator unit) {

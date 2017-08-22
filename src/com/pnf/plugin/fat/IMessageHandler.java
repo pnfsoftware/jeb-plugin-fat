@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 PNF Software, Inc.
+ * Copyright (c) 2015-2017 PNF Software, Inc.
  *
  *     https://www.pnfsoftware.com
  *
@@ -20,9 +20,10 @@ package com.pnf.plugin.fat;
 /**
  * Interface representing a class capable of handling {@code Message} objects
  * 
- * @author carlos
+ * @author Carlos Gonzales
  *
  */
-public interface MessageHandler {
+public interface IMessageHandler {
+
     void handleMessage(Message m);
 }

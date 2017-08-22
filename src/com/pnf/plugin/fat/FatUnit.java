@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 PNF Software, Inc.
+ * Copyright (c) 2015-2017 PNF Software, Inc.
  *
  *     https://www.pnfsoftware.com
  *
@@ -30,7 +30,7 @@ import com.pnfsoftware.jeb.core.units.AbstractBinaryUnit;
 import com.pnfsoftware.jeb.core.units.IUnit;
 import com.pnfsoftware.jeb.core.units.IUnitProcessor;
 import com.pnfsoftware.jeb.core.units.impl.ContainerUnit;
-import com.pnfsoftware.jeb.util.IO;
+import com.pnfsoftware.jeb.util.io.IO;
 
 public class FatUnit extends AbstractBinaryUnit {
     private StringBuffer desc;

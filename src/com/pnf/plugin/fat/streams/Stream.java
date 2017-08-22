@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 PNF Software, Inc.
+ * Copyright (c) 2015-2017 PNF Software, Inc.
  *
  *     https://www.pnfsoftware.com
  *
@@ -20,7 +20,7 @@ package com.pnf.plugin.fat.streams;
 import java.util.List;
 
 import com.pnf.plugin.fat.Message;
-import com.pnf.plugin.fat.MessageHandler;
+import com.pnf.plugin.fat.IMessageHandler;
 import com.pnfsoftware.jeb.core.units.UnitNotification;
 
 /**
@@ -30,7 +30,7 @@ import com.pnfsoftware.jeb.core.units.UnitNotification;
  * @author carlos
  *
  */
-public abstract class Stream implements MessageHandler {
+public abstract class Stream implements IMessageHandler {
     private String rawName;
     private List<UnitNotification> notif;
     private boolean readError;
