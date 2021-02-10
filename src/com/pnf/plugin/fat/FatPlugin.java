@@ -46,8 +46,7 @@ public class FatPlugin extends AbstractUnitIdentifier {
 
     @Override
     public PluginInformation getPluginInformation() {
-        return new PluginInformation("FAT Plugin", "Parser for FAT filesystem images", "PNF Software", Version.create(
-                1, 0, 2), Version.create(2, 3, 3), null);
+        return new PluginInformation("FAT Plugin", "Parser for FAT filesystem images", "PNF Software", Version.create(1, 0, 3));
     }
 
     public boolean canIdentify(IInput input, IUnitCreator unit) {

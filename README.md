@@ -1,3 +1,5 @@
+## OUTDATED
+
 # JEB FAT image reader
 
 JEB plugin for FAT (File Allocation Table) image files.

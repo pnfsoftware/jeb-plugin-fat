@@ -1,38 +1,30 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--===============================================================================================
+Ant build file to build and package the JEB plugin.
+Requirements:
+- JEB 3.0.7 or above
+- Set up the JEB_HOME environment variable to point to your JEB installation folder.
+- Customize the outfile, entryclass, extcp_build, and extcp_manifest properties.
+================================================================================================-->
 
-<!--===========================================================================
-Ant build file used to build and package a JEB2 plugin.
-Requirements: set up the JEB_HOME environment variable to point to your
-JEB2 installation folder.
-============================================================================-->
+<project basedir=".." default="build" name="jebplugin">
 
-<project basedir="." default="build" name="jebplugin">
-
-    <!-- BEGIN - CUSTOMIZE THE FOLLOWING PROPERTIES -->
-    <property name="pluginname" value="JebFatPlugin"/>
-    <property name="entryclass" value="com.pnf.plugin.fat.FatPlugin"/>
-    <property name="extcp_build" value=""/>
-    <property name="extcp_manifest" value=""/>
-    <!-- END OF CUSTOMIZATION -->
-
-
-    <fail message="Set the plugin version on the command-line: ant -Dversion=x.y.z">
+    <fail message="Set the plugin version number: -DpluginVersion=x.y.z">
       <condition>
         <not>
-          <isset property="version"/>
+          <isset property="pluginVersion"/>
         </not>
       </condition>
     </fail>
-
-    <echo message="Plugin version: ${version}"/>
+    <echo message="Plugin version: ${pluginVersion}"/>
 
     <property environment="env"/>
     <echo message="JEB_HOME: ${env.JEB_HOME}"/>
 
-    <property name="jebjar" value="${env.JEB_HOME}/bin/cl/jeb.jar"/>
+    <property name="jebjar" value="${env.JEB_HOME}/bin/app/jeb.jar"/>
     <echo message="JEB Core expected at location: ${jebjar}"/>
 
-    <fail message="Please set JEB_HOME environment variable to point to your JEB installation folder">
+    <fail message="Please set the JEB_HOME environment variable to point to your JEB installation folder">
       <condition>
         <not>
           <available file="${jebjar}"/>
@@ -41,13 +33,19 @@ JEB2 installation folder.
     </fail>
 
     <property name="debuglevel" value="source,lines,vars"/>
-    <property name="target" value="1.7"/>
-    <property name="source" value="1.7"/>
+    <property name="target" value="1.8"/>
+    <property name="source" value="1.8"/>
 
-    <property name="outfile" value="out/${pluginname}-${version}.jar"/>
+    <!-- Mandatory properties -->
+    <property name="src" value="src"/>
+    <property name="outfile" value="out/${pluginFilename}-${pluginVersion}.jar"/>
+    <property name="entryclass" value="${pluginClassname}"/>
+    <!-- External libraries, for build process (semi-colon separated) -->
+    <property name="extcp_build" value=""/>
+    <!-- External libraries, for Manifest (space separated) -->
+    <property name="extcp_manifest" value=""/>
 
     <target name="build" depends="clean,compile,package"/>
-
     <target name="audit" depends="clean,compile-audit"/>
 
     <target name="clean">
@@ -59,7 +57,7 @@ JEB2 installation folder.
         <delete dir="bin"/>
         <mkdir dir="bin"/>
         <javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}" encoding="UTF-8">
-            <src path="src"/>
+            <src path="${src}"/>
             <classpath>
                 <pathelement location="${jebjar}"/>
                 <pathelement path="${extcp_build}"/>
@@ -73,7 +71,7 @@ JEB2 installation folder.
             <compilerclasspath>
                 <pathelement location="../jeb2-common/errorprone.jar"/>
             </compilerclasspath>
-            <src path="src"/>
+            <src path="${src}"/>
             <classpath>
                 <pathelement location="${jebjar}"/>
                 <pathelement path="${extcp_build}"/>
@@ -87,11 +85,11 @@ JEB2 installation folder.
             <manifest>
                 <attribute name="Class-Path" value="${extcp_manifest}"/>
                 <attribute name="JebPlugin-entryclass" value="${entryclass}"/>
-                <attribute name="JebPlugin-version" value="${version}"/>
+                <attribute name="JebPlugin-version" value="${pluginVersion}"/>
             </manifest>
             <fileset dir="bin"/>
             <!-- copy resources -->
-            <fileset dir="src" excludes="**/*.java"/>
+            <fileset dir="${src}" excludes="**/*.java"/>
             <fileset dir="." includes="README.md"/>
         </jar>
     </target>
